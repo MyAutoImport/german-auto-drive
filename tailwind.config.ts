@@ -57,6 +57,20 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Custom automotive colors
+        "premium-gold": "hsl(var(--premium-gold))",
+        charcoal: "hsl(var(--charcoal))",
+        steel: "hsl(var(--steel))",
+        platinum: "hsl(var(--platinum))",
+      },
+      backgroundImage: {
+        'gradient-primary': 'var(--gradient-primary)',
+        'gradient-dark': 'var(--gradient-dark)',
+        'gradient-steel': 'var(--gradient-steel)',
+      },
+      boxShadow: {
+        'premium': 'var(--shadow-premium)',
+        'card-dark': 'var(--shadow-card)',
       },
       borderRadius: {
         lg: "var(--radius)",
