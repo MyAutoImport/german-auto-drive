@@ -1,67 +1,62 @@
-// /api/contact.js
+// api/contact.mjs
 import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-// A quién llega el lead y desde qué “from” lo envías
-const TO = process.env.CONTACT_TO_EMAIL; // ej: "tucorreo@dominio.com"
-const FROM = process.env.CONTACT_FROM_EMAIL || 'Autoimport <onboarding@resend.dev>';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
     const { name, email, phone, carType, budget, message } = req.body || {};
 
-    // Validación mínima de los campos obligatorios
+    // Validación acorde a tu formulario
     if (!name || !email || !phone || !carType || !budget) {
-      return res.status(400).json({ error: 'Faltan campos obligatorios.' });
+      return res.status(400).json({ error: 'Faltan campos obligatorios' });
     }
 
-    const subject = `Nueva consulta de ${name} (${carType}, ${budget})`;
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
+    // IMPORTANTE:
+    // Si no has verificado dominio en Resend, usa onboarding@resend.dev como "from"
+    const from = process.env.CONTACT_FROM || 'AutoImport <onboarding@resend.dev>';
+    const to = process.env.CONTACT_TO; // tu correo destino (obligatorio)
+
+    if (!process.env.RESEND_API_KEY) {
+      return res.status(500).json({ error: 'Falta RESEND_API_KEY' });
+    }
+    if (!to) {
+      return res.status(500).json({ error: 'Falta CONTACT_TO' });
+    }
+
+    const subject = `Nueva consulta - ${carType} (${budget})`;
     const html = `
-      <h2>Nuevo lead de la web</h2>
+      <h2>Nueva consulta desde la web</h2>
       <ul>
-        <li><strong>Nombre:</strong> ${name}</li>
-        <li><strong>Email:</strong> ${email}</li>
-        <li><strong>Teléfono:</strong> ${phone}</li>
-        <li><strong>Tipo de vehículo:</strong> ${carType}</li>
-        <li><strong>Presupuesto:</strong> ${budget}</li>
+        <li><b>Nombre:</b> ${name}</li>
+        <li><b>Email:</b> ${email}</li>
+        <li><b>Teléfono:</b> ${phone}</li>
+        <li><b>Tipo de vehículo:</b> ${carType}</li>
+        <li><b>Presupuesto:</b> ${budget}</li>
       </ul>
-      ${message ? `<p><strong>Mensaje:</strong><br>${escapeHtml(message)}</p>` : ''}
-      <hr/>
-      <p>Responder a: ${email}</p>
+      <p><b>Mensaje:</b></p>
+      <p>${(message || '').replace(/\n/g, '<br/>')}</p>
     `;
 
-    const { data, error } = await resend.emails.send({
-      from: FROM,
-      to: TO,
-      reply_to: email,
+    const { error } = await resend.emails.send({
+      from,            // si no hay dominio verificado => onboarding@resend.dev
+      to,
+      reply_to: email, // para que puedas responder al lead
       subject,
-      html,
+      html
     });
 
     if (error) {
-      // Resend devolvió error (por credenciales, dominios, etc.)
-      return res.status(502).json({ error: error.message || 'Error enviando email' });
+      // Devolver el motivo de Resend, no “A server error…”
+      return res.status(500).json({ error: error.message || 'Error enviando email' });
     }
 
-    return res.status(200).json({ ok: true, id: data?.id || null });
+    return res.status(200).json({ ok: true });
   } catch (err) {
-    console.error('CONTACT_API_ERROR', err);
-    return res.status(500).json({ error: err?.message || 'Error interno' });
+    return res.status(500).json({ error: err.message || 'Error interno' });
   }
-}
-
-// Pequeña utilidad para evitar HTML injection en el mensaje
-function escapeHtml(str = '') {
-  return String(str)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
 }
