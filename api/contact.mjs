@@ -1,72 +1,67 @@
-// api/contact.mjs
+// /api/contact.js
 import { Resend } from 'resend';
-import { createClient } from '@supabase/supabase-js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Supabase opcional (guarda los leads)
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+// A quién llega el lead y desde qué “from” lo envías
+const TO = process.env.CONTACT_TO_EMAIL; // ej: "tucorreo@dominio.com"
+const FROM = process.env.CONTACT_FROM_EMAIL || 'Autoimport <onboarding@resend.dev>';
 
-// Esta ruta acepta POST con JSON del formulario
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'Method Not Allowed' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
 
   try {
-    const {
-      full_name = '',
-      email = '',
-      phone = '',
-      vehicle_type = '',
-      budget = '',
-      message = ''
-    } = req.body || {};
+    const { name, email, phone, carType, budget, message } = req.body || {};
 
-    // 1) Guardar en Supabase (tabla leads)
-    try {
-      await supabase.from('leads').insert([
-        { full_name, email, phone, vehicle_type, budget, message }
-      ]);
-    } catch (e) {
-      // no rompemos el flujo si falla guardar, pero lo anotamos
-      console.error('Supabase insert error:', e?.message || e);
+    // Validación mínima de los campos obligatorios
+    if (!name || !email || !phone || !carType || !budget) {
+      return res.status(400).json({ error: 'Faltan campos obligatorios.' });
     }
 
-    // 2) Enviar email con Resend
-    const toEmail = process.env.TO_EMAIL;
-    const fromEmail = process.env.FROM_EMAIL;
+    const subject = `Nueva consulta de ${name} (${carType}, ${budget})`;
 
     const html = `
-      <h2>Nuevo lead</h2>
-      <p><b>Nombre:</b> ${escapeHtml(full_name)}</p>
-      <p><b>Email:</b> ${escapeHtml(email)}</p>
-      <p><b>Teléfono:</b> ${escapeHtml(phone)}</p>
-      <p><b>Tipo de vehículo:</b> ${escapeHtml(vehicle_type)}</p>
-      <p><b>Presupuesto:</b> ${escapeHtml(budget)}</p>
-      <p><b>Mensaje:</b><br/>${escapeHtml(message).replace(/\n/g, '<br/>')}</p>
+      <h2>Nuevo lead de la web</h2>
+      <ul>
+        <li><strong>Nombre:</strong> ${name}</li>
+        <li><strong>Email:</strong> ${email}</li>
+        <li><strong>Teléfono:</strong> ${phone}</li>
+        <li><strong>Tipo de vehículo:</strong> ${carType}</li>
+        <li><strong>Presupuesto:</strong> ${budget}</li>
+      </ul>
+      ${message ? `<p><strong>Mensaje:</strong><br>${escapeHtml(message)}</p>` : ''}
+      <hr/>
+      <p>Responder a: ${email}</p>
     `;
 
-    await resend.emails.send({
-      from: fromEmail,
-      to: toEmail,
-      subject: 'Nuevo lead de la web',
-      html
+    const { data, error } = await resend.emails.send({
+      from: FROM,
+      to: TO,
+      reply_to: email,
+      subject,
+      html,
     });
 
-    return res.status(200).json({ ok: true });
+    if (error) {
+      // Resend devolvió error (por credenciales, dominios, etc.)
+      return res.status(502).json({ error: error.message || 'Error enviando email' });
+    }
+
+    return res.status(200).json({ ok: true, id: data?.id || null });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ ok: false, error: err?.message || 'Server error' });
+    console.error('CONTACT_API_ERROR', err);
+    return res.status(500).json({ error: err?.message || 'Error interno' });
   }
 }
 
+// Pequeña utilidad para evitar HTML injection en el mensaje
 function escapeHtml(str = '') {
   return String(str)
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+    .replaceAll("'", '&#039;');
 }

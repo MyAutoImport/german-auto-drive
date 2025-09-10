@@ -25,55 +25,47 @@ const ContactForm = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isLoading) return;
+  e.preventDefault();
+  setIsLoading(true);
 
-    setIsLoading(true);
+  try {
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
 
-    try {
-      // Enviamos al endpoint /api/contact (Resend + Supabase)
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          full_name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          vehicle_type: formData.carType,
-          budget: formData.budget,
-          message: formData.message,
-        }),
-      });
+    // Intenta parsear JSON siempre
+    const data = await res.json().catch(() => null);
 
-      const data = await res.json();
-      if (!res.ok || !data?.ok) {
-        throw new Error(data?.error || `HTTP ${res.status}`);
-      }
-
-      toast({
-        title: "¡Consulta enviada!",
-        description: "Nos pondremos en contacto contigo en las próximas 24 horas.",
-      });
-
-      // Limpiamos el formulario
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        carType: "",
-        budget: "",
-        message: "",
-      });
-    } catch (err: any) {
-      toast({
-        title: "No se pudo enviar",
-        description: err?.message || "Inténtalo de nuevo en unos minutos.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+    if (!res.ok) {
+      const msg = data?.error || `Fallo ${res.status}`;
+      throw new Error(msg);
     }
-  };
+
+    toast({
+      title: '¡Consulta enviada!',
+      description: 'Nos pondremos en contacto contigo en las próximas 24 horas.',
+    });
+
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      carType: '',
+      budget: '',
+      message: '',
+    });
+  } catch (err: any) {
+    toast({
+      variant: 'destructive',
+      title: 'No se pudo enviar',
+      description: err?.message || 'Error inesperado',
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <section id="contacto" className="py-24 bg-gradient-steel">
