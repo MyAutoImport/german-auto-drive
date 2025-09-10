@@ -20,30 +20,59 @@ const ContactForm = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return;
+
     setIsLoading(true);
 
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      // Enviamos al endpoint /api/contact (Resend + Supabase)
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          vehicle_type: formData.carType,
+          budget: formData.budget,
+          message: formData.message,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data?.ok) {
+        throw new Error(data?.error || `HTTP ${res.status}`);
+      }
+
       toast({
         title: "¡Consulta enviada!",
         description: "Nos pondremos en contacto contigo en las próximas 24 horas.",
       });
+
+      // Limpiamos el formulario
       setFormData({
         name: "",
         email: "",
         phone: "",
         carType: "",
         budget: "",
-        message: ""
+        message: "",
       });
+    } catch (err: any) {
+      toast({
+        title: "No se pudo enviar",
+        description: err?.message || "Inténtalo de nuevo en unos minutos.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
-  };
-
-  const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    }
   };
 
   return (
@@ -75,6 +104,7 @@ const ContactForm = () => {
                     <Label htmlFor="name">Nombre completo</Label>
                     <Input
                       id="name"
+                      name="full_name"
                       value={formData.name}
                       onChange={(e) => handleChange("name", e.target.value)}
                       required
@@ -85,6 +115,7 @@ const ContactForm = () => {
                     <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
+                      name="email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleChange("email", e.target.value)}
@@ -98,6 +129,7 @@ const ContactForm = () => {
                   <Label htmlFor="phone">Teléfono</Label>
                   <Input
                     id="phone"
+                    name="phone"
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleChange("phone", e.target.value)}
@@ -109,7 +141,10 @@ const ContactForm = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="carType">Tipo de vehículo</Label>
-                    <Select value={formData.carType} onValueChange={(value) => handleChange("carType", value)}>
+                    <Select
+                      value={formData.carType}
+                      onValueChange={(value) => handleChange("carType", value)}
+                    >
                       <SelectTrigger className="bg-background/50">
                         <SelectValue placeholder="Selecciona una opción" />
                       </SelectTrigger>
@@ -124,7 +159,10 @@ const ContactForm = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="budget">Presupuesto aproximado</Label>
-                    <Select value={formData.budget} onValueChange={(value) => handleChange("budget", value)}>
+                    <Select
+                      value={formData.budget}
+                      onValueChange={(value) => handleChange("budget", value)}
+                    >
                       <SelectTrigger className="bg-background/50">
                         <SelectValue placeholder="Selecciona un rango" />
                       </SelectTrigger>
@@ -142,6 +180,7 @@ const ContactForm = () => {
                   <Label htmlFor="message">Mensaje (opcional)</Label>
                   <Textarea
                     id="message"
+                    name="message"
                     value={formData.message}
                     onChange={(e) => handleChange("message", e.target.value)}
                     placeholder="Cuéntanos más detalles sobre lo que buscas..."
@@ -196,7 +235,8 @@ const ContactForm = () => {
                     <div>
                       <div className="font-semibold text-foreground">Oficina</div>
                       <div className="text-muted-foreground">
-                        Calle Principal 123<br />
+                        Calle Principal 123
+                        <br />
                         28001 Madrid, España
                       </div>
                     </div>
