@@ -14,3 +14,4 @@ export async function createCar(brand: string, model: string, year: number) {
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
+
