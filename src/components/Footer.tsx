@@ -10,7 +10,7 @@ const Footer = () => {
           <div>
             <Link to="/" className="flex items-center space-x-2 mb-6">
               <Car className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold text-foreground">AutoImport</span>
+              <span className="text-xl font-bold text-foreground">MyAutoImport</span>
             </Link>
             <p className="text-muted-foreground mb-6">
               Especialistas en importación de vehículos alemanes con más de 15 años de experiencia 
@@ -85,8 +85,8 @@ const Footer = () => {
               <div className="flex items-start space-x-3">
                 <Phone className="h-5 w-5 text-primary mt-0.5" />
                 <div>
-                  <a href="tel:+34123456789" className="text-muted-foreground hover:text-primary transition-colors">
-                    +34 123 456 789
+                  <a href="tel:+34641338743" className="text-muted-foreground hover:text-primary transition-colors">
+                    +34 641 338 743
                   </a>
                   <div className="text-sm text-muted-foreground">Lun-Vie: 9:00-18:00</div>
                 </div>
@@ -94,8 +94,8 @@ const Footer = () => {
 
               <div className="flex items-start space-x-3">
                 <Mail className="h-5 w-5 text-primary mt-0.5" />
-                <a href="mailto:info@autoimport.es" className="text-muted-foreground hover:text-primary transition-colors">
-                  info@autoimport.es
+                <a href="mailto::info.myautoimport@gmail.com" className="text-muted-foreground hover:text-primary transition-colors">
+                  info.myautoimport@gmail.com
                 </a>
               </div>
 
@@ -114,7 +114,7 @@ const Footer = () => {
         <div className="border-t border-border mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-sm text-muted-foreground">
-              © 2024 AutoImport. Todos los derechos reservados.
+              © 2025 MyAutoImport. Todos los derechos reservados.
             </div>
             <div className="flex space-x-6 text-sm">
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
