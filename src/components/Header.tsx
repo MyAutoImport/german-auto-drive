@@ -27,7 +27,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <Car className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">AutoImport</span>
+            <span className="text-xl font-bold text-foreground">MyAutoImport</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -47,13 +47,13 @@ const Header = () => {
 
           {/* Contact Info */}
           <div className="hidden lg:flex items-center space-x-4 text-sm text-muted-foreground">
-            <a href="tel:+34123456789" className="flex items-center space-x-1 hover:text-primary transition-colors">
+            <a href="tel:+34641338743" className="flex items-center space-x-1 hover:text-primary transition-colors">
               <Phone className="h-4 w-4" />
-              <span>+34 123 456 789</span>
+              <span>+34 641 338 743</span>
             </a>
-            <a href="mailto:info@autoimport.es" className="flex items-center space-x-1 hover:text-primary transition-colors">
+            <a href="mailto:info.myautoimport@gmail.com" className="flex items-center space-x-1 hover:text-primary transition-colors">
               <Mail className="h-4 w-4" />
-              <span>info@autoimport.es</span>
+              <span>info.myautoimport@gmail.com</span>
             </a>
           </div>
 
@@ -85,13 +85,13 @@ const Header = () => {
                 </Link>
               ))}
               <div className="px-3 py-2 space-y-2 text-sm text-muted-foreground border-t border-border mt-2 pt-4">
-                <a href="tel:+34123456789" className="flex items-center space-x-2 hover:text-primary transition-colors">
+                <a href="tel:+34641338743" className="flex items-center space-x-2 hover:text-primary transition-colors">
                   <Phone className="h-4 w-4" />
-                  <span>+34 123 456 789</span>
+                  <span>+34 641 338 743</span>
                 </a>
-                <a href="mailto:info@autoimport.es" className="flex items-center space-x-2 hover:text-primary transition-colors">
+                <a href="mailto:info.myautoimport@gmail.com" className="flex items-center space-x-2 hover:text-primary transition-colors">
                   <Mail className="h-4 w-4" />
-                  <span>info@autoimport.es</span>
+                  <span>info.myautoimport@gmail.com</span>
                 </a>
               </div>
             </div>
