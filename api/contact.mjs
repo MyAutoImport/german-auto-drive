@@ -1,62 +1,69 @@
-// api/contact.mjs
+// /api/contact.mjs
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-
-// Usa SIEMPRE la service-role key porque la función corre en servidor
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-  { auth: { persistSession: false } }
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'Method not allowed' });
+  if (req.method !== 'POST') return res.status(405).end();
 
   try {
-    // Vercel Node functions reciben el body como string si viene JSON
-    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    // Vercel (Node) ya parsea JSON si el header es application/json
+    const { name, email, phone, carType, budget, message } =
+      typeof req.body === 'object' ? req.body : JSON.parse(req.body || '{}');
 
-    const { name, email, phone, carType, budget, message } = body || {};
-
-    // 1) Guardar lead en Supabase
-    const { error: dbError } = await supabase.from('leads').insert([{
-      name,
-      email,
-      phone,
-      car_type: carType,   // ojo con el snake_case si tu tabla está así
-      budget,
-      message
-    }]);
+    // 1) Insertar en Supabase -> tabla 'leads'
+    const { error: dbError } = await supabase.from('leads').insert([
+      {
+        name: name?.trim() || '',
+        email: email?.trim() || '',
+        phone: phone?.trim() || '',
+        message: message?.trim() || '',
+        // guardo tipo + presupuesto en 'source' como acordamos
+        source: `${carType || ''}${budget ? ` (${budget})` : ''}`.trim(),
+      },
+    ]);
 
     if (dbError) {
+      // log útil en respuesta si falla
       console.error('Supabase insert error:', dbError);
-      // seguimos enviando el mail, pero marcamos el fallo por si quieres verlo en logs
+      return res.status(500).json({ ok: false, error: 'DB_INSERT_FAILED' });
     }
 
-    // 2) Enviar correo con Resend
+    // 2) Enviar email con Resend (lo que ya tenías)
     await resend.emails.send({
-      from: process.env.CONTACT_FROM,  // p.ej: "AutoImport <info@myautoimport.es>"
-      to: process.env.CONTACT_TO,      // p.ej: "info.myautoimport@gmail.com"
-      subject: `Nueva consulta - ${carType || 'sin tipo'} (${budget || 'sin presupuesto'})`,
+      from: process.env.CONTACT_FROM,   // p.ej: 'AutoImport <info@myautoimport.es>'
+      to: process.env.CONTACT_TO,       // p.ej: 'info.myautoimport@gmail.com'
+      subject: `Nueva consulta - ${carType || 'sin tipo'} ${budget ? `(${budget})` : ''}`,
       html: `
-        <h2>Nueva consulta desde la web</h2>
+        <h3>Nueva consulta desde la web</h3>
         <ul>
-          <li><strong>Nombre:</strong> ${name || '-'}</li>
-          <li><strong>Email:</strong> ${email || '-'}</li>
-          <li><strong>Teléfono:</strong> ${phone || '-'}</li>
-          <li><strong>Tipo de vehículo:</strong> ${carType || '-'}</li>
-          <li><strong>Presupuesto:</strong> ${budget || '-'}</li>
+          <li><b>Nombre:</b> ${escapeHtml(name)}</li>
+          <li><b>Email:</b> ${escapeHtml(email)}</li>
+          <li><b>Teléfono:</b> ${escapeHtml(phone)}</li>
+          <li><b>Tipo de vehículo:</b> ${escapeHtml(carType || '')}</li>
+          <li><b>Presupuesto:</b> ${escapeHtml(budget || '')}</li>
         </ul>
-        <p><strong>Mensaje:</strong></p>
-        <p>${message || '-'}</p>
-      `
+        <p><b>Mensaje:</b></p>
+        <p>${escapeHtml(message || '')}</p>
+      `,
     });
 
     return res.status(200).json({ ok: true });
   } catch (err) {
-    console.error('Contact API error:', err);
-    return res.status(500).json({ ok: false, error: 'Internal error' });
+    console.error(err);
+    return res.status(500).json({ ok: false, error: 'SERVER_ERROR' });
   }
+}
+
+// pequeña ayuda para no romper el html del correo
+function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
