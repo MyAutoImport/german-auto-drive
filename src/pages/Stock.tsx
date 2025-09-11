@@ -1,25 +1,65 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Search, 
-  Filter, 
-  Fuel, 
-  Calendar, 
-  Settings, 
-  Eye, 
-  SlidersHorizontal 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Search,
+  Fuel,
+  Calendar,
+  Settings,
+  Eye,
+  SlidersHorizontal,
+  AlertTriangle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import bmwImage from "@/assets/bmw-m3.jpg";
-import mercedesImage from "@/assets/mercedes-c-class.jpg";
-import audiImage from "@/assets/audi-a4.jpg";
+// Imágenes de respaldo por si en la BD no hay image_url
+import bmwFallback from "@/assets/bmw-m3.jpg";
+import mercFallback from "@/assets/mercedes-c-class.jpg";
+import audiFallback from "@/assets/audi-a4.jpg";
+
+type Car = {
+  id: number;
+  brand: string;
+  model: string;
+  year: number;
+  price: number;
+  original_price?: number | null;
+  image_url?: string | null;
+  fuel?: string | null;
+  transmission?: string | null;
+  km?: number | null;
+  status?: string | null;
+  // features puede venir como array JSON o como string separado por comas
+  features?: string[] | string | null;
+};
+
+function normalizeFeatures(features?: string[] | string | null): string[] {
+  if (!features) return [];
+  if (Array.isArray(features)) return features.filter(Boolean);
+  return features
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function brandFallback(brand?: string) {
+  if (!brand) return mercFallback;
+  const b = brand.toLowerCase();
+  if (b.includes("bmw")) return bmwFallback;
+  if (b.includes("audi")) return audiFallback;
+  return mercFallback;
+}
 
 const Stock = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,119 +67,72 @@ const Stock = () => {
   const [priceFilter, setPriceFilter] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
-  const allCars = [
-    {
-      id: 1,
-      brand: "BMW",
-      model: "M3 Competition",
-      year: 2022,
-      price: 65000,
-      originalPrice: 75000,
-      image: bmwImage,
-      fuel: "Gasolina",
-      transmission: "Automático",
-      km: 25000,
-      features: ["Pack M", "Harman Kardon", "Navegación", "Cuero"],
-      status: "Disponible"
-    },
-    {
-      id: 2,
-      brand: "Mercedes-Benz",
-      model: "C 220d AMG",
-      year: 2023,
-      price: 42000,
-      originalPrice: 52000,
-      image: mercedesImage,
-      fuel: "Diésel",
-      transmission: "Automático",
-      km: 18000,
-      features: ["AMG Line", "MBUX", "LED", "Parktronic"],
-      status: "Disponible"
-    },
-    {
-      id: 3,
-      brand: "Audi",
-      model: "A4 S-Line",
-      year: 2022,
-      price: 38000,
-      originalPrice: 45000,
-      image: audiImage,
-      fuel: "Gasolina",
-      transmission: "S-Tronic",
-      km: 22000,
-      features: ["Virtual Cockpit", "Quattro", "S-Line", "Matrix LED"],
-      status: "En tránsito"
-    },
-    {
-      id: 4,
-      brand: "BMW",
-      model: "X5 xDrive30d",
-      year: 2023,
-      price: 58000,
-      originalPrice: 68000,
-      image: bmwImage,
-      fuel: "Diésel",
-      transmission: "Automático",
-      km: 15000,
-      features: ["xDrive", "Harman Kardon", "Techo panorámico", "Asientos ventilados"],
-      status: "Disponible"
-    },
-    {
-      id: 5,
-      brand: "Mercedes-Benz",
-      model: "E 350d 4MATIC",
-      year: 2022,
-      price: 48000,
-      originalPrice: 58000,
-      image: mercedesImage,
-      fuel: "Diésel",
-      transmission: "9G-Tronic",
-      km: 28000,
-      features: ["4MATIC", "Burmester", "Air Body Control", "MBUX"],
-      status: "Disponible"
-    },
-    {
-      id: 6,
-      brand: "Audi",
-      model: "Q7 55 TFSI",
-      year: 2023,
-      price: 72000,
-      originalPrice: 85000,
-      image: audiImage,
-      fuel: "Gasolina",
-      transmission: "Tiptronic",
-      km: 12000,
-      features: ["Quattro", "Virtual Cockpit Plus", "B&O", "Air suspension"],
-      status: "Reservado"
-    }
-  ];
+  const [cars, setCars] = useState<Car[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState<string | null>(null);
 
-  const filteredCars = allCars.filter(car => {
-    const matchesSearch = car.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         car.model.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesBrand = !brandFilter || car.brand === brandFilter;
-    const matchesPrice = !priceFilter || 
-      (priceFilter === "0-30k" && car.price <= 30000) ||
-      (priceFilter === "30-50k" && car.price > 30000 && car.price <= 50000) ||
-      (priceFilter === "50-70k" && car.price > 50000 && car.price <= 70000) ||
-      (priceFilter === "70k+" && car.price > 70000);
-    
-    return matchesSearch && matchesBrand && matchesPrice;
-  });
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setErr(null);
+        const res = await fetch("/api/cars-list", { method: "GET" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        // esperamos { cars: Car[] } o array directo
+        const items: Car[] = Array.isArray(data) ? data : data?.cars ?? [];
+        if (alive) setCars(items);
+      } catch (e: any) {
+        if (alive) setErr(e?.message || "Error al cargar los coches");
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const filteredCars = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+
+    return cars.filter((car) => {
+      const matchesSearch =
+        !term ||
+        `${car.brand ?? ""} ${car.model ?? ""}`.toLowerCase().includes(term);
+
+      const matchesBrand = !brandFilter || car.brand === brandFilter;
+
+      const price = Number(car.price || 0);
+      const matchesPrice =
+        !priceFilter ||
+        (priceFilter === "0-30k" && price <= 30000) ||
+        (priceFilter === "30-50k" && price > 30000 && price <= 50000) ||
+        (priceFilter === "50-70k" && price > 50000 && price <= 70000) ||
+        (priceFilter === "70k+" && price > 70000);
+
+      return matchesSearch && matchesBrand && matchesPrice;
+    });
+  }, [cars, searchTerm, brandFilter, priceFilter]);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       {/* Page Header */}
       <section className="pt-24 pb-12 bg-gradient-steel">
         <div className="container mx-auto px-4">
           <div className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Nuestro <span className="bg-gradient-primary bg-clip-text text-transparent">Stock</span>
+              Nuestro{" "}
+              <span className="bg-gradient-primary bg-clip-text text-transparent">
+                Stock
+              </span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Explora nuestra selección completa de vehículos alemanes disponibles para importación inmediata.
+              Explora nuestra selección completa de vehículos alemanes
+              disponibles para importación inmediata.
             </p>
           </div>
 
@@ -170,7 +163,9 @@ const Stock = () => {
               <div className="bg-card/50 backdrop-blur-sm rounded-lg p-6 mb-8 border border-border/50">
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Marca</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Marca
+                    </label>
                     <Select value={brandFilter} onValueChange={setBrandFilter}>
                       <SelectTrigger className="bg-background/50">
                         <SelectValue placeholder="Todas las marcas" />
@@ -178,13 +173,17 @@ const Stock = () => {
                       <SelectContent>
                         <SelectItem value="">Todas las marcas</SelectItem>
                         <SelectItem value="BMW">BMW</SelectItem>
-                        <SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
+                        <SelectItem value="Mercedes-Benz">
+                          Mercedes-Benz
+                        </SelectItem>
                         <SelectItem value="Audi">Audi</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Precio</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Precio
+                    </label>
                     <Select value={priceFilter} onValueChange={setPriceFilter}>
                       <SelectTrigger className="bg-background/50">
                         <SelectValue placeholder="Todos los precios" />
@@ -221,122 +220,172 @@ const Stock = () => {
       {/* Cars Grid */}
       <section className="py-12">
         <div className="container mx-auto px-4">
-          <div className="mb-6">
-            <p className="text-muted-foreground">
-              Mostrando {filteredCars.length} de {allCars.length} vehículos
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredCars.map((car) => (
-              <Card key={car.id} className="overflow-hidden bg-card border-border hover:shadow-card-dark transition-all duration-300 group">
-                <div className="relative">
-                  <img
-                    src={car.image}
-                    alt={`${car.brand} ${car.model}`}
-                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-4 left-4 flex gap-2">
-                    <Badge variant="secondary" className="bg-background/90 text-foreground">
-                      {car.year}
-                    </Badge>
-                    <Badge 
-                      variant={car.status === "Disponible" ? "default" : car.status === "En tránsito" ? "secondary" : "outline"}
-                      className={car.status === "Disponible" ? "bg-green-600 hover:bg-green-700" : ""}
-                    >
-                      {car.status}
-                    </Badge>
-                  </div>
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-gradient-primary text-primary-foreground">
-                      Ahorro €{(car.originalPrice - car.price).toLocaleString()}
-                    </Badge>
-                  </div>
-                </div>
-
-                <CardContent className="p-6">
-                  <div className="mb-4">
-                    <h3 className="text-2xl font-bold text-foreground mb-2">
-                      {car.brand} {car.model}
-                    </h3>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-3xl font-bold text-primary">
-                          €{car.price.toLocaleString()}
-                        </div>
-                        <div className="text-sm text-muted-foreground line-through">
-                          €{car.originalPrice.toLocaleString()}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Car Details */}
-                  <div className="grid grid-cols-3 gap-4 mb-6 text-sm">
-                    <div className="flex items-center space-x-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{car.km.toLocaleString()} km</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Fuel className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{car.fuel}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Settings className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{car.transmission}</span>
-                    </div>
-                  </div>
-
-                  {/* Features */}
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {car.features.slice(0, 3).map((feature) => (
-                      <Badge key={feature} variant="outline" className="text-xs">
-                        {feature}
-                      </Badge>
-                    ))}
-                    {car.features.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{car.features.length - 3} más
-                      </Badge>
-                    )}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-3">
-                    <Link to={`/coche/${car.id}`} className="flex-1">
-                      <Button variant="outline" className="w-full">
-                        <Eye className="mr-2 h-4 w-4" />
-                        Ver detalles
-                      </Button>
-                    </Link>
-                    <Button 
-                      className="bg-gradient-primary hover:opacity-90 text-primary-foreground"
-                      disabled={car.status === "Reservado"}
-                    >
-                      {car.status === "Reservado" ? "Reservado" : "Consultar"}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {filteredCars.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-muted-foreground text-lg mb-4">
-                No se encontraron vehículos con los filtros aplicados
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSearchTerm("");
-                  setBrandFilter("");
-                  setPriceFilter("");
-                }}
-              >
-                Limpiar filtros
-              </Button>
+          {loading ? (
+            <div className="text-center text-muted-foreground py-16">
+              Cargando vehículos…
             </div>
+          ) : err ? (
+            <div className="flex items-center justify-center gap-2 text-red-500 py-16">
+              <AlertTriangle className="h-5 w-5" />
+              <span>Hubo un problema al cargar el stock. {err}</span>
+            </div>
+          ) : (
+            <>
+              <div className="mb-6">
+                <p className="text-muted-foreground">
+                  Mostrando {filteredCars.length} de {cars.length} vehículos
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredCars.map((car) => {
+                  const img =
+                    car.image_url && car.image_url.trim().length > 5
+                      ? car.image_url
+                      : brandFallback(car.brand);
+                  const original =
+                    typeof car.original_price === "number"
+                      ? car.original_price
+                      : undefined;
+                  const ahorro =
+                    original && car.price ? Math.max(original - car.price, 0) : 0;
+                  const features = normalizeFeatures(car.features);
+
+                  return (
+                    <Card
+                      key={car.id}
+                      className="overflow-hidden bg-card border-border hover:shadow-card-dark transition-all duration-300 group"
+                    >
+                      <div className="relative">
+                        <img
+                          src={img}
+                          alt={`${car.brand} ${car.model}`}
+                          className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute top-4 left-4 flex gap-2">
+                          <Badge variant="secondary" className="bg-background/90 text-foreground">
+                            {car.year ?? "----"}
+                          </Badge>
+                          <Badge
+                            variant={
+                              car.status === "Disponible"
+                                ? "default"
+                                : car.status === "Reservado"
+                                ? "outline"
+                                : "secondary"
+                            }
+                            className={
+                              car.status === "Disponible"
+                                ? "bg-green-600 hover:bg-green-700"
+                                : ""
+                            }
+                          >
+                            {car.status ?? "Disponible"}
+                          </Badge>
+                        </div>
+                        {ahorro > 0 && (
+                          <div className="absolute top-4 right-4">
+                            <Badge className="bg-gradient-primary text-primary-foreground">
+                              Ahorro €{ahorro.toLocaleString()}
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+
+                      <CardContent className="p-6">
+                        <div className="mb-4">
+                          <h3 className="text-2xl font-bold text-foreground mb-2">
+                            {car.brand} {car.model}
+                          </h3>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="text-3xl font-bold text-primary">
+                                €{Number(car.price || 0).toLocaleString()}
+                              </div>
+                              {original && (
+                                <div className="text-sm text-muted-foreground line-through">
+                                  €{original.toLocaleString()}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Car Details */}
+                        <div className="grid grid-cols-3 gap-4 mb-6 text-sm">
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-muted-foreground">
+                              {(car.km ?? 0).toLocaleString()} km
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Fuel className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-muted-foreground">
+                              {car.fuel ?? "—"}
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Settings className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-muted-foreground">
+                              {car.transmission ?? "—"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Features */}
+                        <div className="flex flex-wrap gap-2 mb-6">
+                          {features.slice(0, 3).map((feature) => (
+                            <Badge key={feature} variant="outline" className="text-xs">
+                              {feature}
+                            </Badge>
+                          ))}
+                          {features.length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{features.length - 3} más
+                            </Badge>
+                          )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-3">
+                          <Link to={`/coche/${car.id}`} className="flex-1">
+                            <Button variant="outline" className="w-full">
+                              <Eye className="mr-2 h-4 w-4" />
+                              Ver detalles
+                            </Button>
+                          </Link>
+                          <Button
+                            className="bg-gradient-primary hover:opacity-90 text-primary-foreground"
+                            disabled={car.status === "Reservado"}
+                          >
+                            {car.status === "Reservado" ? "Reservado" : "Consultar"}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              {filteredCars.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="text-muted-foreground text-lg mb-4">
+                    No se encontraron vehículos con los filtros aplicados
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearchTerm("");
+                      setBrandFilter("");
+                      setPriceFilter("");
+                    }}
+                  >
+                    Limpiar filtros
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
