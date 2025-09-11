@@ -9,11 +9,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { SlidersHorizontal } from "lucide-react";
-
-
 import {
   Sheet,
   SheetContent,
@@ -58,7 +53,8 @@ type Car = {
   transmission?: string | null;
   km?: number | null;
   status?: string | null;
-  features?: string[] | string | null; // puede llegar como array o string
+  // puede llegar como array o string
+  features?: string[] | string | null;
 };
 
 function normalizeFeatures(features?: string[] | string | null): string[] {
@@ -78,10 +74,12 @@ function brandFallback(brand?: string) {
   return mercFallback;
 }
 
+const ALL = "__all__";
+
 const Stock = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [brandFilter, setBrandFilter] = useState("");
-  const [priceFilter, setPriceFilter] = useState("");
+  const [brandFilter, setBrandFilter] = useState<string>(ALL);
+  const [priceFilter, setPriceFilter] = useState<string>(ALL);
 
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,7 +91,7 @@ const Stock = () => {
       try {
         setLoading(true);
         setErr(null);
-        const res = await fetch("/api/cars-list", { method: "GET" });
+        const res = await fetch("/api/cars-list");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         const items: Car[] = Array.isArray(data) ? data : data?.cars ?? [];
@@ -111,21 +109,23 @@ const Stock = () => {
 
   const filteredCars = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
+    const brand = brandFilter === ALL ? "" : brandFilter;
+    const priceBand = priceFilter === ALL ? "" : priceFilter;
 
     return cars.filter((car) => {
       const matchesSearch =
         !term ||
         `${car.brand ?? ""} ${car.model ?? ""}`.toLowerCase().includes(term);
 
-      const matchesBrand = !brandFilter || car.brand === brandFilter;
+      const matchesBrand = !brand || car.brand === brand;
 
       const price = Number(car.price || 0);
       const matchesPrice =
-        !priceFilter ||
-        (priceFilter === "0-30k" && price <= 30000) ||
-        (priceFilter === "30-50k" && price > 30000 && price <= 50000) ||
-        (priceFilter === "50-70k" && price > 50000 && price <= 70000) ||
-        (priceFilter === "70k+" && price > 70000);
+        !priceBand ||
+        (priceBand === "0-30k" && price <= 30000) ||
+        (priceBand === "30-50k" && price > 30000 && price <= 50000) ||
+        (priceBand === "50-70k" && price > 50000 && price <= 70000) ||
+        (priceBand === "70k+" && price > 70000);
 
       return matchesSearch && matchesBrand && matchesPrice;
     });
@@ -164,7 +164,7 @@ const Stock = () => {
                 />
               </div>
 
-              {/* === Drawer / Sheet de Filtros === */}
+              {/* Drawer / Sheet de Filtros */}
               <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="secondary" className="flex items-center gap-2 md:w-auto">
@@ -173,14 +173,12 @@ const Stock = () => {
                   </Button>
                 </SheetTrigger>
 
-                {/* Panel lateral */}
                 <SheetContent side="right" className="w-full sm:max-w-md">
                   <SheetHeader>
                     <SheetTitle>Filtros</SheetTitle>
                     <SheetDescription>Ajusta tu búsqueda</SheetDescription>
                   </SheetHeader>
 
-                  {/* Contenido de filtros */}
                   <div className="mt-6 space-y-6">
                     <div className="space-y-2">
                       <label className="block text-sm font-medium text-foreground">
@@ -191,7 +189,7 @@ const Stock = () => {
                           <SelectValue placeholder="Todas las marcas" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Todas las marcas</SelectItem>
+                          <SelectItem value={ALL}>Todas las marcas</SelectItem>
                           <SelectItem value="BMW">BMW</SelectItem>
                           <SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
                           <SelectItem value="Audi">Audi</SelectItem>
@@ -208,7 +206,7 @@ const Stock = () => {
                           <SelectValue placeholder="Todos los precios" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Todos los precios</SelectItem>
+                          <SelectItem value={ALL}>Todos los precios</SelectItem>
                           <SelectItem value="0-30k">Hasta €30,000</SelectItem>
                           <SelectItem value="30-50k">€30,000 - €50,000</SelectItem>
                           <SelectItem value="50-70k">€50,000 - €70,000</SelectItem>
@@ -223,8 +221,8 @@ const Stock = () => {
                         className="flex-1"
                         onClick={() => {
                           setSearchTerm("");
-                          setBrandFilter("");
-                          setPriceFilter("");
+                          setBrandFilter(ALL);
+                          setPriceFilter(ALL);
                         }}
                       >
                         Limpiar filtros
@@ -234,7 +232,6 @@ const Stock = () => {
                   </div>
                 </SheetContent>
               </Sheet>
-              {/* === /Sheet === */}
             </div>
           </div>
         </div>
@@ -272,8 +269,8 @@ const Stock = () => {
                       ? car.original_price
                       : undefined;
 
-                  const ahorro =
-                    original && car.price ? Math.max(original - car.price, 0) : 0;
+                    const ahorro =
+                      original && car.price ? Math.max(original - car.price, 0) : 0;
 
                   const features = normalizeFeatures(car.features);
 
@@ -399,8 +396,8 @@ const Stock = () => {
                     variant="outline"
                     onClick={() => {
                       setSearchTerm("");
-                      setBrandFilter("");
-                      setPriceFilter("");
+                      setBrandFilter(ALL);
+                      setPriceFilter(ALL);
                     }}
                   >
                     Limpiar filtros
