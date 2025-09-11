@@ -1,10 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
 import {
   Select,
   SelectContent,
@@ -12,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import {
   Search,
   Fuel,
@@ -21,9 +35,8 @@ import {
   SlidersHorizontal,
   AlertTriangle,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 
-// Imágenes de respaldo por si en la BD no hay image_url
+// Imágenes fallback por si la BD no trae image_url
 import bmwFallback from "@/assets/bmw-m3.jpg";
 import mercFallback from "@/assets/mercedes-c-class.jpg";
 import audiFallback from "@/assets/audi-a4.jpg";
@@ -40,8 +53,7 @@ type Car = {
   transmission?: string | null;
   km?: number | null;
   status?: string | null;
-  // features puede venir como array JSON o como string separado por comas
-  features?: string[] | string | null;
+  features?: string[] | string | null; // puede llegar como array o string
 };
 
 function normalizeFeatures(features?: string[] | string | null): string[] {
@@ -65,7 +77,6 @@ const Stock = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [brandFilter, setBrandFilter] = useState("");
   const [priceFilter, setPriceFilter] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
 
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,7 +91,6 @@ const Stock = () => {
         const res = await fetch("/api/cars-list", { method: "GET" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        // esperamos { cars: Car[] } o array directo
         const items: Car[] = Array.isArray(data) ? data : data?.cars ?? [];
         if (alive) setCars(items);
       } catch (e: any) {
@@ -136,7 +146,7 @@ const Stock = () => {
             </p>
           </div>
 
-          {/* Search and Filters */}
+          {/* Buscador + Botón Filtros (abre Sheet) */}
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row gap-4 mb-6">
               <div className="relative flex-1">
@@ -148,71 +158,79 @@ const Stock = () => {
                   className="pl-10 bg-background/50"
                 />
               </div>
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className="md:w-auto"
-              >
-                <SlidersHorizontal className="mr-2 h-4 w-4" />
-                Filtros
-              </Button>
-            </div>
 
-            {/* Filters Panel */}
-            {showFilters && (
-              <div className="bg-card/50 backdrop-blur-sm rounded-lg p-6 mb-8 border border-border/50">
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Marca
-                    </label>
-                    <Select value={brandFilter} onValueChange={setBrandFilter}>
-                      <SelectTrigger className="bg-background/50">
-                        <SelectValue placeholder="Todas las marcas" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">Todas las marcas</SelectItem>
-                        <SelectItem value="BMW">BMW</SelectItem>
-                        <SelectItem value="Mercedes-Benz">
-                          Mercedes-Benz
-                        </SelectItem>
-                        <SelectItem value="Audi">Audi</SelectItem>
-                      </SelectContent>
-                    </Select>
+              {/* === Drawer / Sheet de Filtros === */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="secondary" className="flex items-center gap-2 md:w-auto">
+                    <SlidersHorizontal className="h-4 w-4" />
+                    Filtros
+                  </Button>
+                </SheetTrigger>
+
+                {/* Panel lateral */}
+                <SheetContent side="right" className="w-full sm:max-w-md">
+                  <SheetHeader>
+                    <SheetTitle>Filtros</SheetTitle>
+                    <SheetDescription>Ajusta tu búsqueda</SheetDescription>
+                  </SheetHeader>
+
+                  {/* Contenido de filtros */}
+                  <div className="mt-6 space-y-6">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-foreground">
+                        Marca
+                      </label>
+                      <Select value={brandFilter} onValueChange={setBrandFilter}>
+                        <SelectTrigger className="bg-background/50">
+                          <SelectValue placeholder="Todas las marcas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">Todas las marcas</SelectItem>
+                          <SelectItem value="BMW">BMW</SelectItem>
+                          <SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
+                          <SelectItem value="Audi">Audi</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-foreground">
+                        Precio
+                      </label>
+                      <Select value={priceFilter} onValueChange={setPriceFilter}>
+                        <SelectTrigger className="bg-background/50">
+                          <SelectValue placeholder="Todos los precios" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">Todos los precios</SelectItem>
+                          <SelectItem value="0-30k">Hasta €30,000</SelectItem>
+                          <SelectItem value="30-50k">€30,000 - €50,000</SelectItem>
+                          <SelectItem value="50-70k">€50,000 - €70,000</SelectItem>
+                          <SelectItem value="70k+">Más de €70,000</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => {
+                          setSearchTerm("");
+                          setBrandFilter("");
+                          setPriceFilter("");
+                        }}
+                      >
+                        Limpiar filtros
+                      </Button>
+                      <Button className="flex-1">Aplicar filtros</Button>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Precio
-                    </label>
-                    <Select value={priceFilter} onValueChange={setPriceFilter}>
-                      <SelectTrigger className="bg-background/50">
-                        <SelectValue placeholder="Todos los precios" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">Todos los precios</SelectItem>
-                        <SelectItem value="0-30k">Hasta €30,000</SelectItem>
-                        <SelectItem value="30-50k">€30,000 - €50,000</SelectItem>
-                        <SelectItem value="50-70k">€50,000 - €70,000</SelectItem>
-                        <SelectItem value="70k+">Más de €70,000</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex items-end">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSearchTerm("");
-                        setBrandFilter("");
-                        setPriceFilter("");
-                      }}
-                      className="w-full"
-                    >
-                      Limpiar filtros
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
+                </SheetContent>
+              </Sheet>
+              {/* === /Sheet === */}
+            </div>
           </div>
         </div>
       </section>
@@ -243,12 +261,15 @@ const Stock = () => {
                     car.image_url && car.image_url.trim().length > 5
                       ? car.image_url
                       : brandFallback(car.brand);
+
                   const original =
                     typeof car.original_price === "number"
                       ? car.original_price
                       : undefined;
+
                   const ahorro =
                     original && car.price ? Math.max(original - car.price, 0) : 0;
+
                   const features = normalizeFeatures(car.features);
 
                   return (
@@ -274,11 +295,7 @@ const Stock = () => {
                                 ? "outline"
                                 : "secondary"
                             }
-                            className={
-                              car.status === "Disponible"
-                                ? "bg-green-600 hover:bg-green-700"
-                                : ""
-                            }
+                            className={car.status === "Disponible" ? "bg-green-600 hover:bg-green-700" : ""}
                           >
                             {car.status ?? "Disponible"}
                           </Badge>
