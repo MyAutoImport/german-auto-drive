@@ -51,17 +51,29 @@ const Hero = () => {
           </div>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-			<Link to="/stock">
-				<Button size="lg" className="bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-premium">
-					Ver Stock Disponible
-					<ArrowRight className="ml-2 h-5 w-5" />
+			<div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+			  {/* Ver stock */}
+			  <Link to="/stock" className="inline-block">
+				<Button
+				  size="lg"
+				  className="bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-premium"
+				>
+				  Ver Stock Disponible
+				  <ArrowRight className="ml-2 h-5 w-5" />
 				</Button>
-			</Link>
-            <Button variant="outline" size="lg" className="border-border hover:bg-secondary">
-              Solicitar Cotización
-            </Button>
-          </div>
+			  </Link>
+
+			  {/* Solicitar cotización (ancla a la sección de contacto) */}
+			  <a href="#contacto" className="inline-block">
+				<Button
+				  variant="outline"
+				  size="lg"
+				  className="border-border hover:bg-secondary"
+				>
+				  Solicitar Cotización
+				</Button>
+			  </a>
+			</div>
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 pt-16 border-t border-border/20">
