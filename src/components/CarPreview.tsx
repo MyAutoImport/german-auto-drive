@@ -98,110 +98,121 @@ export default function CarPreview() {
             Aún no hay vehículos en el stock.
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {top3.map((car) => {
-              const img =
-                car.image_url && car.image_url.trim().length > 5
-                  ? car.image_url
-                  : brandFallback(car.brand);
-              const original =
-                typeof car.original_price === "number" ? car.original_price : undefined;
-              const ahorro =
-                original && car.price ? Math.max(original - car.price, 0) : 0;
+          <>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {top3.map((car) => {
+                const img =
+                  car.image_url && car.image_url.trim().length > 5
+                    ? car.image_url
+                    : brandFallback(car.brand);
+                const original =
+                  typeof car.original_price === "number" ? car.original_price : undefined;
+                const ahorro =
+                  original && car.price ? Math.max(original - car.price, 0) : 0;
 
-              return (
-                <Card
-                  key={car.id}
-                  className="overflow-hidden bg-card border-border hover:shadow-card-dark transition-all duration-300 group"
-                >
-                  <div className="relative">
-                    <img
-                      src={img}
-                      alt={`${car.brand} ${car.model}`}
-                      className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-4 left-4 flex gap-2">
-                      <Badge variant="secondary" className="bg-background/90 text-foreground">
-                        {car.year ?? "----"}
-                      </Badge>
-                      <Badge
-                        variant={
-                          car.status === "Disponible"
-                            ? "default"
-                            : car.status === "Reservado"
-                            ? "outline"
-                            : "secondary"
-                        }
-                        className={
-                          car.status === "Disponible" ? "bg-green-600 hover:bg-green-700" : ""
-                        }
-                      >
-                        {car.status ?? "Disponible"}
-                      </Badge>
-                    </div>
-                    {ahorro > 0 && (
-                      <div className="absolute top-4 right-4">
-                        <Badge className="bg-gradient-primary text-primary-foreground">
-                          Ahorro €{ahorro.toLocaleString()}
+                return (
+                  <Card
+                    key={car.id}
+                    className="overflow-hidden bg-card border-border hover:shadow-card-dark transition-all duration-300 group"
+                  >
+                    <div className="relative">
+                      <img
+                        src={img}
+                        alt={`${car.brand} ${car.model}`}
+                        className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-4 left-4 flex gap-2">
+                        <Badge variant="secondary" className="bg-background/90 text-foreground">
+                          {car.year ?? "----"}
+                        </Badge>
+                        <Badge
+                          variant={
+                            car.status === "Disponible"
+                              ? "default"
+                              : car.status === "Reservado"
+                              ? "outline"
+                              : "secondary"
+                          }
+                          className={
+                            car.status === "Disponible" ? "bg-green-600 hover:bg-green-700" : ""
+                          }
+                        >
+                          {car.status ?? "Disponible"}
                         </Badge>
                       </div>
-                    )}
-                  </div>
+                      {ahorro > 0 && (
+                        <div className="absolute top-4 right-4">
+                          <Badge className="bg-gradient-primary text-primary-foreground">
+                            Ahorro €{ahorro.toLocaleString()}
+                          </Badge>
+                        </div>
+                      )}
+                    </div>
 
-                  <CardContent className="p-6">
-                    <div className="mb-4">
-                      <h3 className="text-2xl font-bold text-foreground mb-2">
-                        {car.brand} {car.model}
-                      </h3>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-3xl font-bold text-primary">
-                            €{Number(car.price || 0).toLocaleString()}
-                          </div>
-                          {original && (
-                            <div className="text-sm text-muted-foreground line-through">
-                              €{original.toLocaleString()}
+                    <CardContent className="p-6">
+                      <div className="mb-4">
+                        <h3 className="text-2xl font-bold text-foreground mb-2">
+                          {car.brand} {car.model}
+                        </h3>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-3xl font-bold text-primary">
+                              €{Number(car.price || 0).toLocaleString()}
                             </div>
-                          )}
+                            {original && (
+                              <div className="text-sm text-muted-foreground line-through">
+                                €{original.toLocaleString()}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="grid grid-cols-3 gap-4 mb-6 text-sm">
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">
-                          {(car.km ?? 0).toLocaleString()} km
-                        </span>
+                      <div className="grid grid-cols-3 gap-4 mb-6 text-sm">
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">
+                            {(car.km ?? 0).toLocaleString()} km
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Fuel className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">{car.fuel ?? "—"}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Settings className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">{car.transmission ?? "—"}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Fuel className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">{car.fuel ?? "—"}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Settings className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">{car.transmission ?? "—"}</span>
-                      </div>
-                    </div>
 
-                    <div className="flex gap-3">
-                      <Link to={`/coche/${car.id}`} className="flex-1">
-                        <Button variant="outline" className="w-full">
-                          <Eye className="mr-2 h-4 w-4" />
-                          Ver detalles
-                        </Button>
-                      </Link>
-                      <Link to="/stock" className="flex-1">
-                        <Button className="w-full bg-gradient-primary text-primary-foreground">
-                          Ver stock
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                      <div className="flex gap-3">
+                        <Link to={`/coche/${car.id}`} className="flex-1">
+                          <Button variant="outline" className="w-full">
+                            <Eye className="mr-2 h-4 w-4" />
+                            Ver detalles
+                          </Button>
+                        </Link>
+                        <Link to="/stock" className="flex-1">
+                          <Button className="w-full bg-gradient-primary text-primary-foreground">
+                            Ver stock
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {/* CTA global: Ver TODO el stock */}
+            <div className="mt-10 flex justify-center">
+              <Link to="/stock">
+                <Button className="px-6 bg-gradient-primary text-primary-foreground">
+                  Ver todo el stock
+                </Button>
+              </Link>
+            </div>
+          </>
         )}
       </div>
     </section>
