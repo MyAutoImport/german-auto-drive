@@ -8,9 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-
-const [openFilters, setOpenFilters] = useState(false);
-
 import {
   Sheet,
   SheetContent,
@@ -19,7 +16,6 @@ import {
   SheetDescription,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
 import {
   Select,
   SelectContent,
@@ -27,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import {
   Search,
   Fuel,
@@ -79,6 +74,9 @@ function brandFallback(brand?: string) {
 const ALL = "__all__";
 
 const Stock = () => {
+  // ✅ hooks dentro del componente
+  const [openFilters, setOpenFilters] = useState(false);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [brandFilter, setBrandFilter] = useState<string>(ALL);
   const [priceFilter, setPriceFilter] = useState<string>(ALL);
@@ -168,89 +166,87 @@ const Stock = () => {
 
               {/* Drawer / Sheet de Filtros */}
               <Sheet open={openFilters} onOpenChange={setOpenFilters}>
-				  <SheetTrigger asChild>
-					<Button
-					  variant="secondary"
-					  className="flex items-center gap-2 md:w-auto"
-					  onClick={() => setOpenFilters(true)}
-					>
-					  <SlidersHorizontal className="h-4 w-4" />
-					  Filtros
-					</Button>
-				  </SheetTrigger>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    className="flex items-center gap-2 md:w-auto"
+                    onClick={() => setOpenFilters(true)}
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                    Filtros
+                  </Button>
+                </SheetTrigger>
 
-				  <SheetContent side="right" className="w-full sm:max-w-md">
-					<SheetHeader>
-					  <SheetTitle>Filtros</SheetTitle>
-					  <SheetDescription>Ajusta tu búsqueda</SheetDescription>
-					</SheetHeader>
+                <SheetContent side="right" className="w-full sm:max-w-md">
+                  <SheetHeader>
+                    <SheetTitle>Filtros</SheetTitle>
+                    <SheetDescription>Ajusta tu búsqueda</SheetDescription>
+                  </SheetHeader>
 
-					<div className="mt-6 space-y-6">
-					  {/* Marca */}
-					  <div className="space-y-2">
-						<label className="block text-sm font-medium text-foreground">
-						  Marca
-						</label>
-						<Select value={brandFilter} onValueChange={setBrandFilter}>
-						  <SelectTrigger className="bg-background/50">
-							<SelectValue placeholder="Todas las marcas" />
-						  </SelectTrigger>
-						  <SelectContent>
-							<SelectItem value="__all__">Todas las marcas</SelectItem>
-							<SelectItem value="BMW">BMW</SelectItem>
-							<SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
-							<SelectItem value="Audi">Audi</SelectItem>
-						  </SelectContent>
-						</Select>
-					  </div>
+                  <div className="mt-6 space-y-6">
+                    {/* Marca */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-foreground">
+                        Marca
+                      </label>
+                      <Select value={brandFilter} onValueChange={setBrandFilter}>
+                        <SelectTrigger className="bg-background/50">
+                          <SelectValue placeholder="Todas las marcas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={ALL}>Todas las marcas</SelectItem>
+                          <SelectItem value="BMW">BMW</SelectItem>
+                          <SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
+                          <SelectItem value="Audi">Audi</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-					  {/* Precio */}
-					  <div className="space-y-2">
-						<label className="block text-sm font-medium text-foreground">
-						  Precio
-						</label>
-						<Select value={priceFilter} onValueChange={setPriceFilter}>
-						  <SelectTrigger className="bg-background/50">
-							<SelectValue placeholder="Todos los precios" />
-						  </SelectTrigger>
-						  <SelectContent>
-							<SelectItem value="__all__">Todos los precios</SelectItem>
-							<SelectItem value="0-30k">Hasta €30,000</SelectItem>
-							<SelectItem value="30-50k">€30,000 - €50,000</SelectItem>
-							<SelectItem value="50-70k">€50,000 - €70,000</SelectItem>
-							<SelectItem value="70k+">Más de €70,000</SelectItem>
-						  </SelectContent>
-						</Select>
-					  </div>
+                    {/* Precio */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-foreground">
+                        Precio
+                      </label>
+                      <Select value={priceFilter} onValueChange={setPriceFilter}>
+                        <SelectTrigger className="bg-background/50">
+                          <SelectValue placeholder="Todos los precios" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={ALL}>Todos los precios</SelectItem>
+                          <SelectItem value="0-30k">Hasta €30,000</SelectItem>
+                          <SelectItem value="30-50k">€30,000 - €50,000</SelectItem>
+                          <SelectItem value="50-70k">€50,000 - €70,000</SelectItem>
+                          <SelectItem value="70k+">Más de €70,000</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-					  <div className="flex gap-3 pt-2">
-						<Button
-						  variant="outline"
-						  className="flex-1"
-						  onClick={() => {
-							setSearchTerm("");
-							setBrandFilter("__all__");
-							setPriceFilter("__all__");
-							// también puedes cerrar si quieres:
-							// setOpenFilters(false);
-						  }}
-						>
-						  Limpiar filtros
-						</Button>
+                    <div className="flex gap-3 pt-2">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => {
+                          setSearchTerm("");
+                          setBrandFilter(ALL);
+                          setPriceFilter(ALL);
+                        }}
+                      >
+                        Limpiar filtros
+                      </Button>
 
-						<Button
-						  className="flex-1"
-						  onClick={() => {
-							// como los filtros ya están aplicados en vivo, aquí solo cerramos el panel
-							setOpenFilters(false);
-						  }}
-						>
-						  Aplicar filtros
-						</Button>
-					  </div>
-					</div>
-				  </SheetContent>
-				</Sheet>
+                      <Button
+                        className="flex-1"
+                        onClick={() => {
+                          // Los filtros ya se aplican en vivo; aquí solo cerramos el panel
+                          setOpenFilters(false);
+                        }}
+                      >
+                        Aplicar filtros
+                      </Button>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
@@ -288,8 +284,8 @@ const Stock = () => {
                       ? car.original_price
                       : undefined;
 
-                    const ahorro =
-                      original && car.price ? Math.max(original - car.price, 0) : 0;
+                  const ahorro =
+                    original && car.price ? Math.max(original - car.price, 0) : 0;
 
                   const features = normalizeFeatures(car.features);
 
