@@ -9,6 +9,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { SlidersHorizontal } from "lucide-react";
+
+
 import {
   Sheet,
   SheetContent,
