@@ -5,17 +5,19 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
 
   try {
-    // Excluir archivados (normalizamos por si hay "Archivado"/"archivado")
+    // Mostrar solo coches visibles en la web:
+    // - status NULL (por compatibilidad)
+    // - 'available' / 'reserved' (en inglés)
+    // - 'Disponible' / 'Reservado' (en español)
     const { data, error } = await supabaseAdmin
       .from('cars')
       .select('*')
-      // quitamos cualquiera de estos valores
-      .not('status', 'in', '("archived","Archivado","archivado")')
+      .or('status.is.null,status.eq.available,status.eq.reserved,status.eq.Disponible,status.eq.Reservado')
       .order('created_at', { ascending: false });
 
     if (error) return res.status(500).json({ error: error.message });
-    return res.json(data || []);
+    return res.status(200).json(data || []);
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Unknown error' });
+    return res.status(500).json({ error: err?.message || 'Unknown error' });
   }
 }
