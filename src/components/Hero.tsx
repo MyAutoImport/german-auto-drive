@@ -52,8 +52,9 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" className="bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-premium">
-              Ver Stock Disponible
+			<Link to="/stock">
+				<Button size="lg" className="bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-premium">
+				Ver Stock Disponible
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button variant="outline" size="lg" className="border-border hover:bg-secondary">
