@@ -39,6 +39,11 @@ const Header = () => {
                 className={`text-sm font-medium transition-colors hover:text-primary ${
                   isActive(item.href) ? "text-primary" : "text-muted-foreground"
                 }`}
+                onClick={
+                  item.name === "Stock"
+                    ? () => window.scrollTo({ top: 0, behavior: "smooth" })
+                    : undefined
+                }
               >
                 {item.name}
               </Link>
@@ -79,7 +84,12 @@ const Header = () => {
                   className={`block px-3 py-2 text-base font-medium transition-colors hover:text-primary ${
                     isActive(item.href) ? "text-primary" : "text-muted-foreground"
                   }`}
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    if (item.name === "Stock") {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
                 >
                   {item.name}
                 </Link>
