@@ -208,7 +208,7 @@ const ContactForm = () => {
                     <Phone className="h-6 w-6 text-primary mt-1" />
                     <div>
                       <div className="font-semibold text-foreground">Teléfono</div>
-                      <div className="text-muted-foreground">+34 123 456 789</div>
+                      <div className="text-muted-foreground">+34 641 338 743</div>
                       <div className="text-sm text-muted-foreground">Lunes a Viernes: 9:00 - 18:00</div>
                     </div>
                   </div>
@@ -217,7 +217,7 @@ const ContactForm = () => {
                     <Mail className="h-6 w-6 text-primary mt-1" />
                     <div>
                       <div className="font-semibold text-foreground">Email</div>
-                      <div className="text-muted-foreground">info@autoimport.es</div>
+                      <div className="text-muted-foreground">info.myautoimport@gmail.com</div>
                       <div className="text-sm text-muted-foreground">Respuesta en 24h</div>
                     </div>
                   </div>
