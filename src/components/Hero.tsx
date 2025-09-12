@@ -18,8 +18,8 @@ const Hero = () => {
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 text-center">
-        {/* ↑ Añadimos padding-top para separar del header */}
-        <div className="max-w-4xl mx-auto pt-28 md:pt-36 lg:pt-44">
+        {/* Padding-top más contenido, pero menos que antes */}
+        <div className="max-w-4xl mx-auto pt-20 md:pt-28 lg:pt-32">
           {/* Badge */}
           <div className="inline-flex items-center space-x-2 bg-secondary/20 backdrop-blur-sm rounded-full px-4 py-2 mb-8">
             <Star className="h-4 w-4 text-primary" />
