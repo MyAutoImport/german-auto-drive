@@ -66,7 +66,7 @@ const Hero = () => {
           </div>
 
           {/* Stats — subido un poco */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12 pt-12 border-t border-border/20">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-8 pt-8 border-t border-border/20">
             {[
               { number: "500+", label: "Coches importados" },
               { number: "98%", label: "Clientes satisfechos" },
