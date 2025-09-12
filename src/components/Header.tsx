@@ -7,6 +7,11 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
+  const scrollToTop = () => {
+    // nos aseguramos de ejecutar tras el click/navegación
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+  };
+
   const navigation = [
     { name: "Inicio", href: "/" },
     { name: "Stock", href: "/stock" },
@@ -25,7 +30,7 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2" onClick={scrollToTop}>
             <Car className="h-8 w-8 text-primary" />
             <span className="text-xl font-bold text-foreground">MyAutoImport</span>
           </Link>
@@ -40,8 +45,8 @@ const Header = () => {
                   isActive(item.href) ? "text-primary" : "text-muted-foreground"
                 }`}
                 onClick={
-                  item.name === "Stock"
-                    ? () => window.scrollTo({ top: 0, behavior: "smooth" })
+                  item.name === "Stock" || item.name === "Inicio"
+                    ? scrollToTop
                     : undefined
                 }
               >
@@ -86,8 +91,8 @@ const Header = () => {
                   }`}
                   onClick={() => {
                     setIsMenuOpen(false);
-                    if (item.name === "Stock") {
-                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    if (item.name === "Stock" || item.name === "Inicio") {
+                      scrollToTop();
                     }
                   }}
                 >

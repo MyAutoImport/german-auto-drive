@@ -2,13 +2,17 @@ import { Link } from "react-router-dom";
 import { Car, Phone, Mail, MapPin, Instagram, Facebook, Youtube } from "lucide-react";
 
 const Footer = () => {
+  const scrollToTop = () => {
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+  };
+
   return (
     <footer className="bg-charcoal border-t border-border">
       <div className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <Link to="/" className="flex items-center space-x-2 mb-6">
+            <Link to="/" className="flex items-center space-x-2 mb-6" onClick={scrollToTop}>
               <Car className="h-8 w-8 text-primary" />
               <span className="text-xl font-bold text-foreground">MyAutoImport</span>
             </Link>
@@ -34,7 +38,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold text-foreground mb-6">Navegación</h3>
             <ul className="space-y-3">
               <li>
-                <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/" className="text-muted-foreground hover:text-primary transition-colors" onClick={scrollToTop}>
                   Inicio
                 </Link>
               </li>
@@ -42,7 +46,7 @@ const Footer = () => {
                 <Link
                   to="/stock"
                   className="text-muted-foreground hover:text-primary transition-colors"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  onClick={scrollToTop}
                 >
                   Stock
                 </Link>
