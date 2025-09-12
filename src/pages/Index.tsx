@@ -13,7 +13,7 @@ const Index = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Actúa únicamente en la home
+    // Solo actuamos en la home
     if (location.pathname !== "/") return;
 
     const hash = location.hash?.replace("#", "");
@@ -22,10 +22,11 @@ const Index = () => {
     const el = document.getElementById(hash);
     if (!el) return;
 
-    // Ajusta este offset si tu header tiene otra altura
-    const HEADER_OFFSET = 72;
-    const y = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
+    // Offset dinámico según la altura real del header + margen
+    const header = document.querySelector("header") as HTMLElement | null;
+    const HEADER_OFFSET = (header?.offsetHeight ?? 72) + 8;
 
+    const y = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
     window.scrollTo({ top: y, behavior: "smooth" });
   }, [location]);
 
@@ -35,16 +36,16 @@ const Index = () => {
       <main>
         <Hero />
 
-        {/* Sección Servicios con ancla */}
-        <section id="servicios">
+        {/* Sección Servicios con ancla y offset extra para header fijo */}
+        <section id="servicios" className="scroll-mt-[80px]">
           <Services />
         </section>
 
         <CarPreview />
         <Testimonials />
 
-        {/* Sección Contacto con ancla */}
-        <section id="contacto">
+        {/* Sección Contacto con ancla y offset extra para header fijo */}
+        <section id="contacto" className="scroll-mt-[80px]">
           <ContactForm />
         </section>
       </main>
