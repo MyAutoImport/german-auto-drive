@@ -44,14 +44,14 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a href="/#servicios" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/#servicios" className="text-muted-foreground hover:text-primary transition-colors">
                   Servicios
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/#contacto" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/#contacto" className="text-muted-foreground hover:text-primary transition-colors">
                   Contacto
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -60,21 +60,11 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-foreground mb-6">Servicios</h3>
             <ul className="space-y-3">
-              <li>
-                <span className="text-muted-foreground">Importación BMW</span>
-              </li>
-              <li>
-                <span className="text-muted-foreground">Importación Mercedes</span>
-              </li>
-              <li>
-                <span className="text-muted-foreground">Importación Audi</span>
-              </li>
-              <li>
-                <span className="text-muted-foreground">Gestión documental</span>
-              </li>
-              <li>
-                <span className="text-muted-foreground">Transporte especializado</span>
-              </li>
+              <li><span className="text-muted-foreground">Importación BMW</span></li>
+              <li><span className="text-muted-foreground">Importación Mercedes</span></li>
+              <li><span className="text-muted-foreground">Importación Audi</span></li>
+              <li><span className="text-muted-foreground">Gestión documental</span></li>
+              <li><span className="text-muted-foreground">Transporte especializado</span></li>
             </ul>
           </div>
 
@@ -94,7 +84,10 @@ const Footer = () => {
 
               <div className="flex items-start space-x-3">
                 <Mail className="h-5 w-5 text-primary mt-0.5" />
-                <a href="mailto::info.myautoimport@gmail.com" className="text-muted-foreground hover:text-primary transition-colors">
+                <a
+                  href="mailto:info.myautoimport@gmail.com"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
                   info.myautoimport@gmail.com
                 </a>
               </div>
