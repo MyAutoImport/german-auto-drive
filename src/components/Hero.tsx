@@ -18,7 +18,7 @@ const Hero = () => {
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 text-center">
-        {/* Padding-top más contenido, pero menos que antes */}
+        {/* separación del header */}
         <div className="max-w-4xl mx-auto pt-20 md:pt-28 lg:pt-32">
           {/* Badge */}
           <div className="inline-flex items-center space-x-2 bg-secondary/20 backdrop-blur-sm rounded-full px-4 py-2 mb-8">
@@ -43,7 +43,7 @@ const Hero = () => {
               "Precios más bajos",
               "Mayor variedad",
               "Gestión completa",
-              "Garantía incluida"
+              "Garantía incluida",
             ].map((feature) => (
               <div key={feature} className="flex items-center space-x-2">
                 <CheckCircle className="h-5 w-5 text-primary" />
@@ -65,13 +65,13 @@ const Hero = () => {
             </Button>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 pt-16 border-t border-border/20">
+          {/* Stats — subido un poco */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12 pt-12 border-t border-border/20">
             {[
               { number: "500+", label: "Coches importados" },
               { number: "98%", label: "Clientes satisfechos" },
               { number: "15", label: "Años de experiencia" },
-              { number: "24/7", label: "Atención al cliente" }
+              { number: "24/7", label: "Atención al cliente" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-primary mb-2">{stat.number}</div>
