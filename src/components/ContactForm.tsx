@@ -103,6 +103,20 @@ const ContactForm = () => {
                       className="bg-background/50"
                     />
                   </div>
+				  
+				   <div className="space-y-2">
+                  <Label htmlFor="phone">Teléfono</Label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => handleChange("phone", e.target.value)}
+                    required
+                    className="bg-background/50"
+                  />
+                </div>
+				  
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -115,19 +129,6 @@ const ContactForm = () => {
                       className="bg-background/50"
                     />
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Teléfono</Label>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => handleChange("phone", e.target.value)}
-                    required
-                    className="bg-background/50"
-                  />
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
