@@ -117,7 +117,7 @@ const ContactForm = () => {
                   />
                 </div>
 				  
-                  <div className="space-y-2">
+                  <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
