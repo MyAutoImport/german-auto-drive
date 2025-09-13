@@ -1,15 +1,14 @@
 {
   "trailingSlash": false,
-  "redirects": [
-    {
-      "source": "https://www.myautoimport.es/(.*)",
-      "destination": "https://myautoimport.es/$1",
-      "permanent": true
-    }
+
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/((?!api/|.*\\..*).*)", "destination": "/index.html" }
   ],
+
   "headers": [
     {
-      "source": "/(.*)\\.((css|js|png|jpg|jpeg|gif|svg|webp|ico|woff2))",
+      "source": "/(.*)\\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|woff2)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
