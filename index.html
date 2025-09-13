@@ -2,80 +2,83 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
+      content="width=device-width, initial-scale=1, maximum-scale=5"
     />
 
-    <title>MyAutoImport · Importación de coches alemanes en España</title>
+    <title>MyAutoImport — Importación de coches de Alemania</title>
     <meta
       name="description"
-      content="Importamos tu coche alemán con todas las garantías. BMW, Mercedes y Audi. Búsqueda, verificación, documentación y entrega en España."
+      content="Importamos tu coche alemán con total transparencia: búsqueda, verificación, negociación, transporte y matriculación. Ahorra y elige entre las mejores marcas: BMW, Mercedes, Audi."
     />
     <link rel="canonical" href="https://myautoimport.es/" />
 
-    <!-- SEO básico -->
-    <meta name="robots" content="index, follow, max-image-preview:large" />
-    <meta name="author" content="MyAutoImport" />
-    <meta name="theme-color" content="#f5b301" />
-
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:locale" content="es_ES" />
-    <meta property="og:site_name" content="MyAutoImport" />
-    <meta property="og:title" content="MyAutoImport · Importación de coches alemanes en España" />
-    <meta property="og:description" content="Gestión completa para importar tu coche alemán. Mejor precio, mayor variedad y garantía incluida." />
-    <meta property="og:url" content="https://myautoimport.es/" />
-    <!-- Cambia esta imagen cuando tengas una 1200x630 -->
-    <meta property="og:image" content="https://myautoimport.es/placeholder" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="MyAutoImport · Importación de coches alemanes en España" />
-    <meta name="twitter:description" content="Importamos tu coche alemán con garantías: búsqueda, verificación y entrega." />
-    <meta name="twitter:image" content="https://myautoimport.es/placeholder" />
+    <!-- Robots -->
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large" />
 
     <!-- PWA -->
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <meta name="theme-color" content="#0ea5e9" />
 
-    <!-- Preconnects útiles -->
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <!-- Favicon / Icons (ajusta rutas si ya las tienes) -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/icons/pwa-192.png" />
 
-    <!-- JSON-LD: Organization + Website -->
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://myautoimport.es/" />
+    <meta property="og:title" content="MyAutoImport — Importación de coches de Alemania" />
+    <meta
+      property="og:description"
+      content="Especialistas en importación de vehículos alemanes. Gestión completa y entrega en España."
+    />
+    <meta property="og:image" content="https://myautoimport.es/og-cover.jpg" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MyAutoImport — Importación de coches de Alemania" />
+    <meta
+      name="twitter:description"
+      content="Especialistas en importación de vehículos alemanes. Gestión completa y entrega en España."
+    />
+    <meta name="twitter:image" content="https://myautoimport.es/og-cover.jpg" />
+
+    <!-- Preconnect (si usas fuentes externas) -->
+    <!-- <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /> -->
+
+    <!-- JSON-LD: Organization + WebSite -->
     <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "MyAutoImport",
-        "url": "https://myautoimport.es/",
-        "logo": "https://myautoimport.es/favicon.ico",
-        "email": "info.myautoimport@gmail.com",
-        "telephone": "+34 641 338 743",
-        "sameAs": []
-      }
+    {
+      "@context":"https://schema.org",
+      "@type":"Organization",
+      "name":"MyAutoImport",
+      "url":"https://myautoimport.es/",
+      "logo":"https://myautoimport.es/icons/pwa-192.png",
+      "sameAs":[
+        "https://www.instagram.com/tu-perfil",
+        "https://www.facebook.com/tu-perfil",
+        "https://www.youtube.com/tu-canal"
+      ],
+      "contactPoint":[{"@type":"ContactPoint","telephone":"+34-641-338-743","contactType":"customer service","areaServed":"ES"}]
+    }
     </script>
     <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "MyAutoImport",
-        "url": "https://myautoimport.es/",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "https://myautoimport.es/stock?q={search_term_string}",
-          "query-input": "required name=search_term_string"
-        }
+    {
+      "@context":"https://schema.org",
+      "@type":"WebSite",
+      "name":"MyAutoImport",
+      "url":"https://myautoimport.es/",
+      "potentialAction":{
+        "@type":"SearchAction",
+        "target":"https://myautoimport.es/stock?query={search_term}",
+        "query-input":"required name=search_term"
       }
+    }
     </script>
 
-    <!-- Vite -->
+    <!-- Vite/Build -->
     <meta name="generator" content="Vite + React" />
   </head>
   <body>

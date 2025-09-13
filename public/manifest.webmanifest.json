@@ -1,19 +1,26 @@
 {
-  "name": "MyAutoImport",
+  "name": "MyAutoImport — Importación de coches de Alemania",
   "short_name": "MyAutoImport",
-  "description": "Especialistas en importación de coches alemanes: búsqueda, gestión y entrega con garantía.",
+  "description": "Especialistas en importación de vehículos alemanes. Asesoramiento, gestión completa y entrega en España.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "theme_color": "#0f1216",
-  "background_color": "#0f1216",
+  "background_color": "#0b0f14",
+  "theme_color": "#0ea5e9",
   "lang": "es-ES",
   "dir": "ltr",
   "icons": [
     {
-      "src": "/favicon.ico",
-      "sizes": "48x48",
-      "type": "image/x-icon"
+      "src": "/icons/pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
