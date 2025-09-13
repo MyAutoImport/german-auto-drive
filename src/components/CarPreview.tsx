@@ -61,7 +61,12 @@ export default function CarPreview() {
     };
   }, []);
 
-  // Handler: subir arriba al navegar (o si ya estás en /stock)
+  // Subir arriba tras navegar a cualquier ruta (detalle, etc.)
+  const scrollTopAfterNav = () => {
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+  };
+
+  // Subir arriba al ir a /stock (y si ya estás en /stock, evita re-navegar)
   const handleGoStock = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const alreadyInStock = window.location.pathname === "/stock";
     if (alreadyInStock) {
@@ -90,15 +95,11 @@ export default function CarPreview() {
             Un vistazo a nuestro{" "}
             <span className="bg-gradient-primary bg-clip-text text-transparent">stock</span>
           </h2>
-          <p className="text-muted-foreground mt-2">
-            Los últimos vehículos añadidos.
-          </p>
+          <p className="text-muted-foreground mt-2">Los últimos vehículos añadidos.</p>
         </div>
 
         {loading ? (
-          <div className="text-center text-muted-foreground py-16">
-            Cargando vehículos…
-          </div>
+          <div className="text-center text-muted-foreground py-16">Cargando vehículos…</div>
         ) : err ? (
           <div className="flex items-center justify-center gap-2 text-red-500 py-16">
             <AlertTriangle className="h-5 w-5" />
@@ -118,8 +119,7 @@ export default function CarPreview() {
                     : brandFallback(car.brand);
                 const original =
                   typeof car.original_price === "number" ? car.original_price : undefined;
-                const ahorro =
-                  original && car.price ? Math.max(original - car.price, 0) : 0;
+                const ahorro = original && car.price ? Math.max(original - car.price, 0) : 0;
 
                 return (
                   <Card
@@ -144,9 +144,7 @@ export default function CarPreview() {
                               ? "outline"
                               : "secondary"
                           }
-                          className={
-                            car.status === "Disponible" ? "bg-green-600 hover:bg-green-700" : ""
-                          }
+                          className={car.status === "Disponible" ? "bg-green-600 hover:bg-green-700" : ""}
                         >
                           {car.status ?? "Disponible"}
                         </Badge>
@@ -197,14 +195,20 @@ export default function CarPreview() {
                       </div>
 
                       <div className="flex gap-3">
-                        <Link to={`/coche/${car.id}`} className="flex-1">
+                        {/* Ver detalles: navega + scroll top */}
+                        <Link
+                          to={`/coche/${car.id}`}
+                          className="flex-1"
+                          onClick={scrollTopAfterNav}
+                          aria-label={`Ver detalles de ${car.brand} ${car.model}`}
+                        >
                           <Button variant="outline" className="w-full">
                             <Eye className="mr-2 h-4 w-4" />
                             Ver detalles
                           </Button>
                         </Link>
 
-                        {/* Ver stock: navega + scroll top */}
+                        {/* Ver stock: navega + scroll top (o solo scroll si ya estás en /stock) */}
                         <Link to="/stock" onClick={handleGoStock} className="flex-1" aria-label="Ver stock">
                           <Button className="w-full bg-gradient-primary text-primary-foreground">
                             Ver stock
