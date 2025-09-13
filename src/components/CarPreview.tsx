@@ -61,6 +61,17 @@ export default function CarPreview() {
     };
   }, []);
 
+  // Handler: subir arriba al navegar (o si ya estás en /stock)
+  const handleGoStock = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const alreadyInStock = window.location.pathname === "/stock";
+    if (alreadyInStock) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+    }
+  };
+
   // 3 más recientes (por created_at si existe; si no, por id desc)
   const top3 = useMemo(() => {
     const sorted = [...cars].sort((a, b) => {
@@ -192,7 +203,9 @@ export default function CarPreview() {
                             Ver detalles
                           </Button>
                         </Link>
-                        <Link to="/stock" className="flex-1">
+
+                        {/* Ver stock: navega + scroll top */}
+                        <Link to="/stock" onClick={handleGoStock} className="flex-1" aria-label="Ver stock">
                           <Button className="w-full bg-gradient-primary text-primary-foreground">
                             Ver stock
                           </Button>
@@ -206,7 +219,7 @@ export default function CarPreview() {
 
             {/* CTA global: Ver TODO el stock */}
             <div className="mt-10 flex justify-center">
-              <Link to="/stock">
+              <Link to="/stock" onClick={handleGoStock} aria-label="Ver todo el stock">
                 <Button className="px-6 bg-gradient-primary text-primary-foreground">
                   Ver todo el stock
                 </Button>
