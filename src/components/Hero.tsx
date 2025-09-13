@@ -4,6 +4,11 @@ import heroImage from "@/assets/hero-cars.jpg";
 import { Link } from "react-router-dom";
 
 const Hero = () => {
+  const scrollToTopAfterNav = () => {
+    // esperamos a que React Router haga la navegación y luego subimos
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+  };
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -54,14 +59,14 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link to="/stock">
+            <Link to="/stock" onClick={scrollToTopAfterNav}>
               <Button size="lg" className="bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-premium">
                 Ver Stock Disponible
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
 
-            {/* NUEVO: lleva al formulario con scroll suave gracias a Index.tsx */}
+            {/* lleva al formulario (scroll suave gestionado en Index.tsx) */}
             <Link to="/#contacto" aria-label="Ir al formulario de contacto">
               <Button variant="outline" size="lg" className="border-border hover:bg-secondary">
                 Solicitar Información
