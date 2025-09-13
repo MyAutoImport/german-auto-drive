@@ -28,7 +28,7 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
-      {/* Skip link para lectores de pantalla/teclado */}
+      {/* Skip link */}
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
@@ -61,8 +61,8 @@ const Header = () => {
                   key={item.name}
                   to={item.href}
                   aria-current={active ? "page" : undefined}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    active ? "text-primary" : "text-muted-foreground"
+                  className={`text-sm font-medium transition-colors hover:text-primary underline-offset-4 ${
+                    active ? "text-primary underline decoration-primary/60" : "text-muted-foreground"
                   }`}
                   onClick={
                     item.name === "Stock" || item.name === "Inicio" ? scrollToTop : undefined
@@ -104,17 +104,16 @@ const Header = () => {
             aria-controls={navId}
             aria-expanded={isMenuOpen}
           >
-            {isMenuOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
+            {isMenuOpen ? (
+              <X className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <Menu className="h-5 w-5" aria-hidden="true" />
+            )}
           </Button>
         </div>
 
         {/* Navegación móvil */}
-        <nav
-          id={navId}
-          aria-label="Navegación móvil"
-          className="md:hidden"
-          hidden={!isMenuOpen}
-        >
+        <nav id={navId} aria-label="Navegación móvil" className="md:hidden" hidden={!isMenuOpen}>
           <div className="px-2 pt-2 pb-3 space-y-1 bg-card border-t border-border">
             {navigation.map((item) => {
               const active = isActive(item.href);
@@ -123,8 +122,8 @@ const Header = () => {
                   key={item.name}
                   to={item.href}
                   aria-current={active ? "page" : undefined}
-                  className={`block px-3 py-2 text-base font-medium transition-colors hover:text-primary ${
-                    active ? "text-primary" : "text-muted-foreground"
+                  className={`block px-3 py-2 text-base font-medium transition-colors hover:text-primary underline-offset-4 ${
+                    active ? "text-primary underline decoration-primary/60" : "text-muted-foreground"
                   }`}
                   onClick={() => {
                     setIsMenuOpen(false);
@@ -148,7 +147,7 @@ const Header = () => {
               <a
                 href="mailto:info.myautoimport@gmail.com"
                 aria-label="Enviar correo a info.myautoimport@gmail.com"
-                className="flex items-center space-x-2 hover:text-primary transition-colors underline underline-offset-4 decoration-primary/60"
+                className="flex items-center space-x-2 hover:text-primary transition-colors underline underline-offset-4 decoration-primary/60 break-all"
               >
                 <Mail className="h-4 w-4" aria-hidden="true" />
                 <span>info.myautoimport@gmail.com</span>
