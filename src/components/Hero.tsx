@@ -1,13 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star, CheckCircle } from "lucide-react";
 import heroImage from "@/assets/hero-cars.jpg";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { goToStockTop } from "@/lib/navigation";
 
 const Hero = () => {
-  const scrollToTopAfterNav = () => {
-    // esperamos a que React Router haga la navegación y luego subimos
-    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
-  };
+  const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -41,8 +40,8 @@ const Hero = () => {
           </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-            Encuentra el vehículo perfecto en Alemania. Nos encargamos de todo el proceso de importación
-            para que solo tengas que disfrutar de tu nuevo coche.
+            Encuentra el vehículo perfecto en Alemania. Nos encargamos de todo el proceso de
+            importación para que solo tengas que disfrutar de tu nuevo coche.
           </p>
 
           {/* Features */}
@@ -59,15 +58,16 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link to="/stock" onClick={scrollToTopAfterNav} aria-label="Ver stock disponible">
-              <Button
-                size="lg"
-                className="bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-premium"
-              >
-                Ver Stock Disponible
-                <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
-              </Button>
-            </Link>
+            {/* IMPORTANTE: usamos onClick con helper para asegurar scroll arriba */}
+            <Button
+              size="lg"
+              className="bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-premium"
+              aria-label="Ver stock disponible"
+              onClick={() => goToStockTop(navigate, location)}
+            >
+              Ver Stock Disponible
+              <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
+            </Button>
 
             {/* lleva al formulario (scroll suave gestionado en Index.tsx) */}
             <Link to="/#contacto" aria-label="Solicitar información en el formulario">
