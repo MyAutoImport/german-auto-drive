@@ -2,7 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Diseño base – todos los colores en HSL */
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
 @layer base {
   :root {
     /* Premium Dark Automotive Theme */
@@ -36,10 +39,29 @@
 
     --radius: 0.75rem;
 
-    /* Extra */
+    /* Custom automotive colors */
+    --premium-gold: 43 96% 56%;
+    --charcoal: 215 15% 8%;
+    --steel: 215 20% 25%;
+    --platinum: 210 15% 85%;
+    
+    /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(43 96% 56%) 0%, hsl(43 86% 46%) 100%);
     --gradient-dark: linear-gradient(180deg, hsl(210 11% 6%) 0%, hsl(215 15% 8%) 100%);
+    --gradient-steel: linear-gradient(135deg, hsl(215 25% 12%) 0%, hsl(215 20% 10%) 100%);
+    
+    /* Shadows */
+    --shadow-premium: 0 20px 40px -12px hsl(43 96% 56% / 0.25);
     --shadow-card: 0 8px 32px -8px hsl(215 15% 4% / 0.5);
+    
+    --sidebar-background: 215 20% 10%;
+    --sidebar-foreground: 210 20% 95%;
+    --sidebar-primary: 43 96% 56%;
+    --sidebar-primary-foreground: 210 11% 6%;
+    --sidebar-accent: 215 25% 12%;
+    --sidebar-accent-foreground: 210 20% 95%;
+    --sidebar-border: 215 25% 15%;
+    --sidebar-ring: 43 96% 56%;
   }
 }
 
@@ -47,22 +69,8 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
-  }
-
-  /* Asegurar foco visible en teclado (accesibilidad 100/100) */
-  :focus-visible {
-    outline: 2px solid hsl(var(--primary));
-    outline-offset: 3px;
-  }
-
-  /* Enlaces distinguibles por algo más que color */
-  a {
-    text-decoration-thickness: 1.25px;
-    text-underline-offset: 4px;
-  }
-  a:hover {
-    text-decoration: underline;
   }
 }
