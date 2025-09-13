@@ -1,108 +1,82 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { 
-  Search, 
-  FileCheck, 
-  Truck, 
-  Shield, 
-  Euro, 
-  Clock,
-  Users,
-  Award
-} from "lucide-react";
+import { ShieldCheck, Car, Wrench, Timer, Globe, Handshake } from "lucide-react";
+
+const features = [
+  {
+    icon: ShieldCheck,
+    title: "Compra segura",
+    desc: "Transparencia total, historial verificado y garantía incluida en todos los vehículos.",
+  },
+  {
+    icon: Globe,
+    title: "Importación desde Alemania",
+    desc: "Nos encargamos de la búsqueda, negociación, trámites y transporte puerta a puerta.",
+  },
+  {
+    icon: Car,
+    title: "Modelos premium",
+    desc: "Stock curado de BMW, Mercedes y Audi con el mejor estado y kilometraje.",
+  },
+  {
+    icon: Wrench,
+    title: "Inspección técnica",
+    desc: "Revisión de 120 puntos y mantenimiento al día antes de la entrega.",
+  },
+  {
+    icon: Timer,
+    title: "Proceso ágil",
+    desc: "Plazos claros y comunicación constante durante todo el proceso.",
+  },
+  {
+    icon: Handshake,
+    title: "Asesoría integral",
+    desc: "Te ayudamos a elegir el coche ideal según tu presupuesto y necesidades.",
+  },
+];
 
 const Services = () => {
-  const services = [
-    {
-      icon: Search,
-      title: "Búsqueda personalizada",
-      description: "Encontramos el vehículo exacto que buscas en el mercado alemán con las mejores condiciones."
-    },
-    {
-      icon: FileCheck,
-      title: "Gestión documental",
-      description: "Nos encargamos de toda la documentación, registros y trámites necesarios para la importación."
-    },
-    {
-      icon: Truck,
-      title: "Transporte seguro",
-      description: "Transporte especializado desde Alemania hasta tu ubicación con seguro completo incluido."
-    },
-    {
-      icon: Shield,
-      title: "Garantía extendida",
-      description: "Todos nuestros vehículos incluyen garantía y verificación técnica completa."
-    }
-  ];
-
-  const advantages = [
-    {
-      icon: Euro,
-      title: "Ahorro significativo",
-      description: "Hasta 30% menos que el precio en España"
-    },
-    {
-      icon: Clock,
-      title: "Proceso rápido",
-      description: "15-20 días desde la compra hasta entrega"
-    },
-    {
-      icon: Users,
-      title: "Equipo experto",
-      description: "15 años de experiencia en importación"
-    },
-    {
-      icon: Award,
-      title: "Calidad garantizada",
-      description: "Vehículos verificados y certificados"
-    }
-  ];
-
   return (
-    <section id="servicios" className="py-24 bg-gradient-steel">
+    <section
+      aria-labelledby="servicios-heading"
+      className="py-20 bg-background"
+    >
       <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-            ¿Cómo funciona nuestro
-            <span className="bg-gradient-primary bg-clip-text text-transparent"> servicio</span>?
+        <header className="text-center max-w-3xl mx-auto mb-14">
+          <h2
+            id="servicios-heading"
+            className="text-4xl md:text-5xl font-bold text-foreground"
+          >
+            Servicios que <span className="bg-gradient-primary bg-clip-text text-transparent">te facilitan</span> la compra
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Un proceso simple y transparente que te permitirá obtener tu coche alemán sin complicaciones.
+          <p className="text-muted-foreground mt-4">
+            Nos ocupamos de todo para que disfrutes de tu coche sin complicaciones.
           </p>
-        </div>
+        </header>
 
-        {/* Services Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
-          {services.map((service, index) => (
-            <Card key={service.title} className="bg-card/50 backdrop-blur-sm border-border/50 hover:bg-card/70 transition-all duration-300 shadow-card-dark">
-              <CardContent className="p-6 text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-2xl mb-6">
-                  <service.icon className="h-8 w-8 text-primary-foreground" />
+        <div
+          role="list"
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          {features.map(({ icon: Icon, title, desc }) => (
+            <article
+              key={title}
+              role="listitem"
+              aria-label={title}
+              className="h-full rounded-2xl border border-border bg-card p-6 shadow-sm focus-within:ring-2 focus-within:ring-primary"
+            >
+              <div className="flex items-start gap-4">
+                <span
+                  aria-hidden="true"
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/40"
+                >
+                  <Icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                </span>
+                <div>
+                  <h3 className="text-xl font-semibold text-foreground">{title}</h3>
+                  <p className="text-muted-foreground mt-2">{desc}</p>
                 </div>
-                <div className="text-2xl font-bold text-primary mb-2">{index + 1}</div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">{service.title}</h3>
-                <p className="text-muted-foreground">{service.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Advantages */}
-        <div className="bg-card/30 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-border/30">
-          <h3 className="text-3xl font-bold text-center text-foreground mb-12">
-            ¿Por qué importar desde Alemania?
-          </h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {advantages.map((advantage) => (
-              <div key={advantage.title} className="text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-secondary rounded-xl mb-4">
-                  <advantage.icon className="h-6 w-6 text-primary" />
-                </div>
-                <h4 className="text-lg font-semibold text-foreground mb-2">{advantage.title}</h4>
-                <p className="text-sm text-muted-foreground">{advantage.description}</p>
               </div>
-            ))}
-          </div>
+            </article>
+          ))}
         </div>
       </div>
     </section>

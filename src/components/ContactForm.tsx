@@ -25,47 +25,45 @@ const ContactForm = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setIsLoading(true);
+    e.preventDefault();
+    setIsLoading(true);
 
-  try {
-    const res = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    // Intenta parsear JSON siempre
-    const data = await res.json().catch(() => null);
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        const msg = data?.error || `Fallo ${res.status}`;
+        throw new Error(msg);
+      }
 
-    if (!res.ok) {
-      const msg = data?.error || `Fallo ${res.status}`;
-      throw new Error(msg);
+      toast({
+        title: "¡Consulta enviada!",
+        description: "Nos pondremos en contacto contigo en las próximas 24 horas.",
+      });
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        carType: "",
+        budget: "",
+        message: "",
+      });
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "No se pudo enviar",
+        description: err?.message || "Error inesperado",
+      });
+    } finally {
+      setIsLoading(false);
     }
-
-    toast({
-      title: '¡Consulta enviada!',
-      description: 'Nos pondremos en contacto contigo en las próximas 24 horas.',
-    });
-
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      carType: '',
-      budget: '',
-      message: '',
-    });
-  } catch (err: any) {
-    toast({
-      variant: 'destructive',
-      title: 'No se pudo enviar',
-      description: err?.message || 'Error inesperado',
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     <section id="contacto" className="py-24 bg-gradient-steel">
@@ -93,36 +91,41 @@ const ContactForm = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Nombre completo</Label>
+                    <Label id="nameLabel" htmlFor="name">Nombre completo</Label>
                     <Input
                       id="name"
                       name="full_name"
+                      autoComplete="name"
                       value={formData.name}
                       onChange={(e) => handleChange("name", e.target.value)}
                       required
                       className="bg-background/50"
                     />
                   </div>
-				  
-				   <div className="space-y-2">
-                  <Label htmlFor="phone">Teléfono</Label>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => handleChange("phone", e.target.value)}
-                    required
-                    className="bg-background/50"
-                  />
-                </div>
-				  
+
+                  <div className="space-y-2">
+                    <Label id="phoneLabel" htmlFor="phone">Teléfono</Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      value={formData.phone}
+                      onChange={(e) => handleChange("phone", e.target.value)}
+                      required
+                      className="bg-background/50"
+                    />
+                  </div>
+
+                  {/* Email más ancho (ocupa 2 columnas) */}
                   <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label id="emailLabel" htmlFor="email">Email</Label>
                     <Input
                       id="email"
                       name="email"
                       type="email"
+                      autoComplete="email"
                       value={formData.email}
                       onChange={(e) => handleChange("email", e.target.value)}
                       required
@@ -133,12 +136,17 @@ const ContactForm = () => {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="carType">Tipo de vehículo</Label>
+                    <Label id="carTypeLabel" htmlFor="carTypeTrigger">Tipo de vehículo</Label>
                     <Select
                       value={formData.carType}
                       onValueChange={(value) => handleChange("carType", value)}
                     >
-                      <SelectTrigger className="bg-background/50">
+                      <SelectTrigger
+                        id="carTypeTrigger"
+                        className="bg-background/50"
+                        aria-labelledby="carTypeLabel"
+                        aria-label="Tipo de vehículo"
+                      >
                         <SelectValue placeholder="Selecciona una opción" />
                       </SelectTrigger>
                       <SelectContent>
@@ -150,13 +158,19 @@ const ContactForm = () => {
                       </SelectContent>
                     </Select>
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="budget">Presupuesto aproximado</Label>
+                    <Label id="budgetLabel" htmlFor="budgetTrigger">Presupuesto aproximado</Label>
                     <Select
                       value={formData.budget}
                       onValueChange={(value) => handleChange("budget", value)}
                     >
-                      <SelectTrigger className="bg-background/50">
+                      <SelectTrigger
+                        id="budgetTrigger"
+                        className="bg-background/50"
+                        aria-labelledby="budgetLabel"
+                        aria-label="Presupuesto aproximado"
+                      >
                         <SelectValue placeholder="Selecciona un rango" />
                       </SelectTrigger>
                       <SelectContent>
@@ -170,10 +184,11 @@ const ContactForm = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="message">Mensaje (opcional)</Label>
+                  <Label id="messageLabel" htmlFor="message">Mensaje (opcional)</Label>
                   <Textarea
                     id="message"
                     name="message"
+                    aria-labelledby="messageLabel"
                     value={formData.message}
                     onChange={(e) => handleChange("message", e.target.value)}
                     placeholder="Cuéntanos más detalles sobre lo que buscas..."
@@ -209,7 +224,13 @@ const ContactForm = () => {
                     <Phone className="h-6 w-6 text-primary mt-1" />
                     <div>
                       <div className="font-semibold text-foreground">Teléfono</div>
-                      <div className="text-muted-foreground">+34 641 338 743</div>
+                      <a
+                        href="tel:+34641338743"
+                        className="text-foreground font-medium hover:underline focus:underline"
+                        aria-label="Llamar al +34 641 338 743"
+                      >
+                        +34 641 338 743
+                      </a>
                       <div className="text-sm text-muted-foreground">Lunes a Viernes: 9:00 - 18:00</div>
                     </div>
                   </div>
@@ -218,7 +239,13 @@ const ContactForm = () => {
                     <Mail className="h-6 w-6 text-primary mt-1" />
                     <div>
                       <div className="font-semibold text-foreground">Email</div>
-                      <div className="text-muted-foreground">info.myautoimport@gmail.com</div>
+                      <a
+                        href="mailto:info.myautoimport@gmail.com"
+                        className="text-foreground font-medium hover:underline focus:underline break-all"
+                        aria-label="Escribir a info.myautoimport@gmail.com"
+                      >
+                        info.myautoimport@gmail.com
+                      </a>
                       <div className="text-sm text-muted-foreground">Respuesta en 24h</div>
                     </div>
                   </div>
@@ -227,11 +254,11 @@ const ContactForm = () => {
                     <MapPin className="h-6 w-6 text-primary mt-1" />
                     <div>
                       <div className="font-semibold text-foreground">Oficina</div>
-                      <div className="text-muted-foreground">
+                      <address className="not-italic text-muted-foreground">
                         Calle Principal 123
                         <br />
                         28001 Madrid, España
-                      </div>
+                      </address>
                     </div>
                   </div>
                 </div>
@@ -243,19 +270,19 @@ const ContactForm = () => {
                 <h3 className="text-2xl font-bold mb-4">¿Por qué elegirnos?</h3>
                 <ul className="space-y-3">
                   <li className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-primary-foreground rounded-full"></div>
+                    <div className="w-2 h-2 bg-primary-foreground rounded-full" aria-hidden="true" />
                     <span>15 años de experiencia</span>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-primary-foreground rounded-full"></div>
+                    <div className="w-2 h-2 bg-primary-foreground rounded-full" aria-hidden="true" />
                     <span>Más de 500 coches importados</span>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-primary-foreground rounded-full"></div>
+                    <div className="w-2 h-2 bg-primary-foreground rounded-full" aria-hidden="true" />
                     <span>Garantía en todos los vehículos</span>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-primary-foreground rounded-full"></div>
+                    <div className="w-2 h-2 bg-primary-foreground rounded-full" aria-hidden="true" />
                     <span>Proceso 100% transparente</span>
                   </li>
                 </ul>

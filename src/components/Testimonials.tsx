@@ -9,7 +9,7 @@ const Testimonials = () => {
       car: "BMW X3",
       rating: 5,
       text: "Increíble servicio. Me ayudaron a encontrar exactamente lo que buscaba y el proceso fue transparente desde el primer día. Ahorré más de 8.000€ comparado con España.",
-      avatar: "CM"
+      avatar: "CM",
     },
     {
       name: "Ana Rodríguez",
@@ -17,7 +17,7 @@ const Testimonials = () => {
       car: "Mercedes C-Class",
       rating: 5,
       text: "Profesionales de confianza. Se encargaron de todo y el coche llegó en perfectas condiciones. Definitivamente recomendaría sus servicios.",
-      avatar: "AR"
+      avatar: "AR",
     },
     {
       name: "Miguel González",
@@ -25,7 +25,7 @@ const Testimonials = () => {
       car: "Audi Q5",
       rating: 5,
       text: "Excelente atención al cliente. Siempre estuvieron disponibles para resolver mis dudas y el resultado superó mis expectativas. Muy satisfecho con la compra.",
-      avatar: "MG"
+      avatar: "MG",
     },
     {
       name: "Laura Fernández",
@@ -33,8 +33,8 @@ const Testimonials = () => {
       car: "BMW Serie 3",
       rating: 5,
       text: "Rápido, eficiente y confiable. En solo 3 semanas tenía mi coche en casa. El equipo es muy profesional y te mantienen informado en todo momento.",
-      avatar: "LF"
-    }
+      avatar: "LF",
+    },
   ];
 
   return (
@@ -54,13 +54,16 @@ const Testimonials = () => {
         {/* Testimonials Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="bg-card border-border hover:shadow-card-dark transition-all duration-300">
+            <Card
+              key={index}
+              className="bg-card border-border hover:shadow-card-dark transition-all duration-300"
+            >
               <CardContent className="p-6">
                 {/* Quote Icon */}
                 <Quote className="h-8 w-8 text-primary mb-4" />
-                
+
                 {/* Rating */}
-                <div className="flex items-center space-x-1 mb-4">
+                <div className="flex items-center space-x-1 mb-4" aria-label={`${testimonial.rating} de 5 estrellas`}>
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-primary text-primary" />
                   ))}

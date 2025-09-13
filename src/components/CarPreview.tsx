@@ -61,7 +61,7 @@ export default function CarPreview() {
     };
   }, []);
 
-  // 3 más “recientes” (por created_at si existe; si no, por id desc)
+  // 3 más recientes (por created_at si existe; si no, por id desc)
   const top3 = useMemo(() => {
     const sorted = [...cars].sort((a, b) => {
       const aKey = a.created_at ? Date.parse(a.created_at) : a.id ?? 0;
