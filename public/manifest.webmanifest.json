@@ -1,17 +1,19 @@
 {
   "name": "MyAutoImport",
   "short_name": "MyAutoImport",
-  "description": "Especialistas en importación de coches alemanes a España. BMW, Mercedes, Audi – gestión completa.",
-  "lang": "es-ES",
+  "description": "Especialistas en importación de coches alemanes: búsqueda, gestión y entrega con garantía.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0b0f14",
-  "theme_color": "#f5b301",
+  "theme_color": "#0f1216",
+  "background_color": "#0f1216",
+  "lang": "es-ES",
+  "dir": "ltr",
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
   ]
 }
