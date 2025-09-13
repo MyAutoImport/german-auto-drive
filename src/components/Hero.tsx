@@ -4,9 +4,17 @@ import heroImage from "@/assets/hero-cars.jpg";
 import { Link } from "react-router-dom";
 
 const Hero = () => {
-  const scrollToTopAfterNav = () => {
-    // esperamos a que React Router haga la navegación y luego subimos
-    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+  const handleGoStock = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const alreadyInStock = window.location.pathname === "/stock";
+
+    if (alreadyInStock) {
+      // Evita re-navegar y sube arriba del todo
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      // Deja navegar y, justo después del cambio de ruta, sube arriba
+      setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+    }
   };
 
   return (
@@ -59,7 +67,7 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link to="/stock" onClick={scrollToTopAfterNav} aria-label="Ver stock disponible">
+            <Link to="/stock" onClick={handleGoStock} aria-label="Ver stock disponible">
               <Button
                 size="lg"
                 className="bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-premium"
