@@ -1,52 +1,37 @@
-// /api/cars-list.ts  (Vercel Node functions)
-// TS/JS común. No necesita Next types.
+// /api/cars-list.mjs
+import { supabaseAdmin } from './_supabase.mjs';
+
+const PUBLIC_BUCKET = process.env.PUBLIC_BUCKET || 'fotos_cars';
+const SUPABASE_URL  = process.env.SUPABASE_URL; // p.ej. https://xxxx.supabase.co
+
+function toPublicUrl(pathOrUrl) {
+  if (!pathOrUrl) return null;
+  const s = String(pathOrUrl).trim();
+  if (/^https?:\/\//i.test(s)) return s; // ya es URL completa
+  return `${SUPABASE_URL}/storage/v1/object/public/${PUBLIC_BUCKET}/${encodeURI(s)}`;
+}
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET');
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
+  if (req.method !== 'GET') return res.status(405).end();
 
   try {
-    const SUPABASE_URL   = process.env.SUPABASE_URL;
-    const SUPABASE_ANON  = process.env.SUPABASE_ANON_KEY; // clave pública
-    const PUBLIC_BUCKET  = process.env.PUBLIC_BUCKET || 'fotos_cars';
-
-    if (!SUPABASE_URL || !SUPABASE_ANON) {
-      return res.status(500).json({ error: 'Missing Supabase env vars' });
-    }
-
-    // ESM -> import dinámico para evitar errores en runtime CJS
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
-      auth: { persistSession: false },
-    });
-
-    const toPublicUrl = (pathOrUrl?: string | null) => {
-      if (!pathOrUrl) return null;
-      const s = String(pathOrUrl).trim();
-      if (/^https?:\/\//i.test(s)) return s; // ya es URL completa
-      return `${SUPABASE_URL}/storage/v1/object/public/${PUBLIC_BUCKET}/${encodeURI(s)}`;
-    };
-
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('cars')
       .select('*')
+      .neq('status', 'Archivado')
       .order('created_at', { ascending: false });
 
-    if (error) {
-      // Devuelve mensaje claro para depurar en prod
-      return res.status(500).json({ error: `Supabase: ${error.message}` });
-    }
+    if (error) return res.status(500).json({ error: error.message });
 
-    const cars = (data || []).map((c: any) => ({
+    // ⬇️ normaliza SOLO la URL de imagen, mantiene mismo shape (array)
+    const out = (data || []).map(c => ({
       ...c,
       image_url: toPublicUrl(c.image_url),
     }));
 
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
-    return res.status(200).json({ cars });
-  } catch (e: any) {
-    return res.status(500).json({ error: e?.message || 'Internal error' });
+    return res.status(200).json(out);
+  } catch (err) {
+    return res.status(500).json({ error: err.message || 'Unknown error' });
   }
 }
