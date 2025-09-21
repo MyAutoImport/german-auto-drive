@@ -23,6 +23,8 @@ import {
   CheckCircle,
   Star,
   AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 // Fallbacks por si no hay imagen
@@ -37,7 +39,7 @@ type Car = {
   year: number;
   price: number;
   original_price?: number | null;
-  image_url?: string | null;
+  image_url?: string | null; // puede venir como string JSON, lista separada por comas o URL única
   fuel?: string | null;
   transmission?: string | null;
   km?: number | null;
@@ -67,6 +69,35 @@ function brandFallback(brand?: string) {
   if (b.includes("bmw")) return bmwFallback;
   if (b.includes("audi")) return audiFallback;
   return mercFallback;
+}
+
+/** Normaliza image_url a array de URLs */
+function toImageArray(v: unknown, fallback: string): string[] {
+  // ya array
+  if (Array.isArray(v)) {
+    const arr = (v as unknown[]).map(String).map((s) => s.replace(/^"|"$/g, "").trim());
+    return arr.length ? arr : [fallback];
+  }
+  // string
+  if (typeof v === "string" && v.trim().length > 0) {
+    const s = v.trim();
+    // JSON válido
+    if (s.startsWith("[") && s.endsWith("]")) {
+      try {
+        const parsed = JSON.parse(s);
+        if (Array.isArray(parsed)) {
+          const arr = parsed.map(String).map((x) => x.replace(/^"|"$/g, "").trim());
+          return arr.length ? arr : [fallback];
+        }
+      } catch {
+        // caemos al split
+      }
+    }
+    // lista separada por comas o una sola url
+    const parts = s.split(",").map((x) => x.replace(/^"|"$/g, "").trim()).filter(Boolean);
+    return parts.length ? parts : [fallback];
+  }
+  return [fallback];
 }
 
 const CarDetail = () => {
@@ -173,10 +204,14 @@ const CarDetail = () => {
     );
   }
 
-  const img =
-    car.image_url && car.image_url.trim().length > 5
-      ? car.image_url
-      : brandFallback(car.brand);
+  // === IMÁGENES (carrusel) ===
+  const fallbackImg = brandFallback(car.brand);
+  const images = toImageArray(car.image_url, fallbackImg);
+  const [idx, setIdx] = useState(0);
+  const safeIdx = Math.min(Math.max(idx, 0), images.length - 1);
+  const currentImg = images[safeIdx];
+  const goPrev = () => setIdx((i) => (i <= 0 ? images.length - 1 : i - 1));
+  const goNext = () => setIdx((i) => (i >= images.length - 1 ? 0 : i + 1));
 
   const original =
     typeof car.original_price === "number" ? car.original_price : undefined;
@@ -216,12 +251,15 @@ const CarDetail = () => {
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Car Image and Basic Info */}
             <div>
+              {/* === Carrusel === */}
               <div className="relative mb-6">
                 <img
-                  src={img}
+                  src={currentImg}
                   alt={`${car.brand} ${car.model}`}
                   className="w-full h-96 object-cover rounded-2xl"
                 />
+
+                {/* Badges */}
                 <div className="absolute top-6 left-6 flex gap-3">
                   <Badge variant="secondary" className="bg-background/90 text-foreground">
                     {car.year}
@@ -241,6 +279,42 @@ const CarDetail = () => {
                       Ahorro €{ahorro.toLocaleString()}
                     </Badge>
                   </div>
+                )}
+
+                {/* Controles del carrusel (solo si hay >1 imagen) */}
+                {images.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={goPrev}
+                      aria-label="Anterior"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 hover:bg-black/60 p-2 text-white"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goNext}
+                      aria-label="Siguiente"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 hover:bg-black/60 p-2 text-white"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+
+                    {/* Dots */}
+                    <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
+                      {images.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setIdx(i)}
+                          aria-label={`Ir a imagen ${i + 1}`}
+                          className={`h-2.5 w-2.5 rounded-full ${
+                            i === safeIdx ? "bg-white" : "bg-white/50 hover:bg-white/70"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </>
                 )}
               </div>
 
