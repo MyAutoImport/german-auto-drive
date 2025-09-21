@@ -21,7 +21,8 @@ import audiFallback from "@/assets/audi-a4.jpg";
 
 type Car = {
   id: number; brand: string; model: string; year: number; price: number;
-  original_price?: number | null; image_url?: string | null;
+  original_price?: number | null;
+  image_url?: string[] | string | null; // <-- admite array o string
   fuel?: string | null; transmission?: string | null; km?: number | null;
   power?: string | null; features?: string[] | string | null;
   description?: string | null; status?: string | null;
@@ -42,21 +43,14 @@ function brandFallback(brand?: string) {
   return mercFallback;
 }
 
+/** Normaliza image_url a array de URLs (tolerante a JSON string, comas, saltos de línea, etc.) */
 function toImageArray(v: unknown, fallback: string): string[] {
-  // 1) si ya es array
   if (Array.isArray(v)) {
-    const arr = (v as unknown[])
-      .map(String)
-      .map(s => s.trim())
-      .filter(Boolean);
+    const arr = (v as unknown[]).map(String).map(s => s.trim()).filter(Boolean);
     return arr.length ? arr : [fallback];
   }
-
-  // 2) si es string, intentamos todo
   if (typeof v === "string") {
     const s = v.trim();
-
-    // 2.a) intentar JSON parse directo
     if (s.startsWith("[") && s.endsWith("]")) {
       try {
         const parsed = JSON.parse(s);
@@ -64,39 +58,12 @@ function toImageArray(v: unknown, fallback: string): string[] {
           const arr = parsed.map(String).map(x => x.trim()).filter(Boolean);
           if (arr.length) return arr;
         }
-      } catch {/* seguimos */}
+      } catch { /* seguimos */ }
     }
-
-    // 2.b) extraer todas las URLs (aunque haya comillas, saltos de línea, etc.)
-    const urls = s.match(/https?:\/\/[^\s"'\],)]+/g) ?? [];
+    const urls = s.match(/https?:\/\/[^\s"'\\\],)]+/g) ?? [];
     if (urls.length) return urls;
-
-    // 2.c) fallback: split por coma
     const parts = s.split(",").map(x => x.replace(/^"|"$/g, "").trim()).filter(Boolean);
     if (parts.length) return parts;
-  }
-
-  // 3) nada válido → fallback de marca
-  return [fallback];
-}
-
-  if (Array.isArray(v)) {
-    const arr = (v as unknown[]).map(String).map(s => s.replace(/^"|"$/g, "").trim());
-    return arr.length ? arr : [fallback];
-  }
-  if (typeof v === "string" && v.trim().length > 0) {
-    const s = v.trim();
-    if (s.startsWith("[") && s.endsWith("]")) {
-      try {
-        const parsed = JSON.parse(s);
-        if (Array.isArray(parsed)) {
-          const arr = parsed.map(String).map(x => x.replace(/^"|"$/g, "").trim());
-          return arr.length ? arr : [fallback];
-        }
-      } catch {}
-    }
-    const parts = s.split(",").map(x => x.replace(/^"|"$/g, "").trim()).filter(Boolean);
-    return parts.length ? parts : [fallback];
   }
   return [fallback];
 }
@@ -113,7 +80,7 @@ const CarDetail = () => {
   const [isSending, setIsSending] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
 
-  // ⬇️ mover hook del carrusel aquí (antes de cualquier return)
+  // estado del carrusel (hook debe ir antes de cualquier return)
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
@@ -186,9 +153,9 @@ const CarDetail = () => {
     );
   }
 
-  // === imágenes carrusel (sin hooks aquí) ===
+  // IMÁGENES
   const fallbackImg = brandFallback(car.brand);
-  const images = toImageArray(car.image_url, fallbackImg);
+  const images = toImageArray(car.image_url as any, fallbackImg);
   const safeIdx = Math.min(Math.max(idx, 0), images.length - 1);
   const currentImg = images[safeIdx];
   const goPrev = () => setIdx(i => (i <= 0 ? images.length - 1 : i - 1));
@@ -245,7 +212,12 @@ const CarDetail = () => {
                     </button>
                     <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
                       {images.map((_, i) => (
-                        <button key={i} onClick={() => setIdx(i)} aria-label={`Ir a imagen ${i + 1}`} className={`h-2.5 w-2.5 rounded-full ${i === safeIdx ? "bg-white" : "bg-white/50 hover:bg-white/70"}`} />
+                        <button
+                          key={i}
+                          onClick={() => setIdx(i)}
+                          aria-label={`Ir a imagen ${i + 1}`}
+                          className={`h-2.5 w-2.5 rounded-full ${i === safeIdx ? "bg-white" : "bg-white/50 hover:bg-white/70"}`}
+                        />
                       ))}
                     </div>
                   </>
@@ -349,13 +321,13 @@ const CarDetail = () => {
               <CardHeader><CardTitle>Equipamiento incluido</CardTitle></CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {normalizeFeatures(car.features).map((feature, index) => (
+                  {features.map((feature, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
                       <span className="text-muted-foreground">{feature}</span>
                     </div>
                   ))}
-                  {normalizeFeatures(car.features).length === 0 && <div className="text-muted-foreground">—</div>}
+                  {features.length === 0 && <div className="text-muted-foreground">—</div>}
                 </div>
               </CardContent>
             </Card>
