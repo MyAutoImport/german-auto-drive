@@ -41,7 +41,45 @@ function brandFallback(brand?: string) {
   if (b.includes("audi")) return audiFallback;
   return mercFallback;
 }
+
 function toImageArray(v: unknown, fallback: string): string[] {
+  // 1) si ya es array
+  if (Array.isArray(v)) {
+    const arr = (v as unknown[])
+      .map(String)
+      .map(s => s.trim())
+      .filter(Boolean);
+    return arr.length ? arr : [fallback];
+  }
+
+  // 2) si es string, intentamos todo
+  if (typeof v === "string") {
+    const s = v.trim();
+
+    // 2.a) intentar JSON parse directo
+    if (s.startsWith("[") && s.endsWith("]")) {
+      try {
+        const parsed = JSON.parse(s);
+        if (Array.isArray(parsed)) {
+          const arr = parsed.map(String).map(x => x.trim()).filter(Boolean);
+          if (arr.length) return arr;
+        }
+      } catch {/* seguimos */}
+    }
+
+    // 2.b) extraer todas las URLs (aunque haya comillas, saltos de línea, etc.)
+    const urls = s.match(/https?:\/\/[^\s"'\],)]+/g) ?? [];
+    if (urls.length) return urls;
+
+    // 2.c) fallback: split por coma
+    const parts = s.split(",").map(x => x.replace(/^"|"$/g, "").trim()).filter(Boolean);
+    if (parts.length) return parts;
+  }
+
+  // 3) nada válido → fallback de marca
+  return [fallback];
+}
+
   if (Array.isArray(v)) {
     const arr = (v as unknown[]).map(String).map(s => s.replace(/^"|"$/g, "").trim());
     return arr.length ? arr : [fallback];
