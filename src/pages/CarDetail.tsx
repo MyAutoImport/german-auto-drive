@@ -10,59 +10,30 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import {
-  ArrowLeft,
-  Fuel,
-  Calendar,
-  Settings,
-  Gauge,
-  Shield,
-  Car as CarIcon,
-  Phone,
-  Mail,
-  Send,
-  CheckCircle,
-  Star,
-  AlertTriangle,
-  ChevronLeft,
-  ChevronRight,
+  ArrowLeft, Fuel, Calendar, Settings, Gauge, Shield,
+  Car as CarIcon, Phone, Mail, Send, CheckCircle, Star,
+  AlertTriangle, ChevronLeft, ChevronRight,
 } from "lucide-react";
 
-// Fallbacks por si no hay imagen
 import bmwFallback from "@/assets/bmw-m3.jpg";
 import mercFallback from "@/assets/mercedes-c-class.jpg";
 import audiFallback from "@/assets/audi-a4.jpg";
 
 type Car = {
-  id: number;
-  brand: string;
-  model: string;
-  year: number;
-  price: number;
-  original_price?: number | null;
-  image_url?: string | null; // puede venir como string JSON, lista separada por comas o URL única
-  fuel?: string | null;
-  transmission?: string | null;
-  km?: number | null;
-  power?: string | null;
-  features?: string[] | string | null;
-  description?: string | null;
-  status?: string | null;
-  // campos técnicos opcionales
-  specs?: Record<string, string> | null;
-  color?: string | null;
-  doors?: number | null;
-  seats?: number | null;
+  id: number; brand: string; model: string; year: number; price: number;
+  original_price?: number | null; image_url?: string | null;
+  fuel?: string | null; transmission?: string | null; km?: number | null;
+  power?: string | null; features?: string[] | string | null;
+  description?: string | null; status?: string | null;
+  specs?: Record<string, string> | null; color?: string | null;
+  doors?: number | null; seats?: number | null;
 };
 
 function normalizeFeatures(features?: string[] | string | null): string[] {
   if (!features) return [];
   if (Array.isArray(features)) return features.filter(Boolean);
-  return features
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+  return features.split(",").map(s => s.trim()).filter(Boolean);
 }
-
 function brandFallback(brand?: string) {
   if (!brand) return mercFallback;
   const b = brand.toLowerCase();
@@ -70,31 +41,23 @@ function brandFallback(brand?: string) {
   if (b.includes("audi")) return audiFallback;
   return mercFallback;
 }
-
-/** Normaliza image_url a array de URLs */
 function toImageArray(v: unknown, fallback: string): string[] {
-  // ya array
   if (Array.isArray(v)) {
-    const arr = (v as unknown[]).map(String).map((s) => s.replace(/^"|"$/g, "").trim());
+    const arr = (v as unknown[]).map(String).map(s => s.replace(/^"|"$/g, "").trim());
     return arr.length ? arr : [fallback];
   }
-  // string
   if (typeof v === "string" && v.trim().length > 0) {
     const s = v.trim();
-    // JSON válido
     if (s.startsWith("[") && s.endsWith("]")) {
       try {
         const parsed = JSON.parse(s);
         if (Array.isArray(parsed)) {
-          const arr = parsed.map(String).map((x) => x.replace(/^"|"$/g, "").trim());
+          const arr = parsed.map(String).map(x => x.replace(/^"|"$/g, "").trim());
           return arr.length ? arr : [fallback];
         }
-      } catch {
-        // caemos al split
-      }
+      } catch {}
     }
-    // lista separada por comas o una sola url
-    const parts = s.split(",").map((x) => x.replace(/^"|"$/g, "").trim()).filter(Boolean);
+    const parts = s.split(",").map(x => x.replace(/^"|"$/g, "").trim()).filter(Boolean);
     return parts.length ? parts : [fallback];
   }
   return [fallback];
@@ -110,19 +73,16 @@ const CarDetail = () => {
   const [err, setErr] = useState<string | null>(null);
 
   const [isSending, setIsSending] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
+
+  // ⬇️ mover hook del carrusel aquí (antes de cualquier return)
+  const [idx, setIdx] = useState(0);
 
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        setLoading(true);
-        setErr(null);
+        setLoading(true); setErr(null);
         const res = await fetch("/api/cars-list");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
@@ -134,36 +94,26 @@ const CarDetail = () => {
         if (alive) setLoading(false);
       }
     })();
-    return () => {
-      alive = false;
-    };
+    return () => { alive = false; };
   }, [carId]);
 
-  const car = useMemo(() => cars.find((c) => c.id === carId), [cars, carId]);
+  const car = useMemo(() => cars.find(c => c.id === carId), [cars, carId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSending(true);
     try {
-      // Aquí sólo mostramos toast. Si quisieras, puedes enviar también a /api/lead-create
-      await new Promise((r) => setTimeout(r, 800));
-      toast({
-        title: "¡Consulta enviada!",
-        description: "Nos pondremos en contacto contigo en las próximas 24 horas.",
-      });
+      await new Promise(r => setTimeout(r, 800));
+      toast({ title: "¡Consulta enviada!", description: "Nos pondremos en contacto contigo en las próximas 24 horas." });
       setFormData({ name: "", email: "", phone: "", message: "" });
-    } finally {
-      setIsSending(false);
-    }
+    } finally { setIsSending(false); }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 pt-32 pb-16 text-center text-muted-foreground">
-          Cargando vehículo…
-        </div>
+        <div className="container mx-auto px-4 pt-32 pb-16 text-center text-muted-foreground">Cargando vehículo…</div>
         <Footer />
       </div>
     );
@@ -188,15 +138,9 @@ const CarDetail = () => {
         <Header />
         <div className="pt-24 pb-12">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl font-bold text-foreground mb-4">
-              Vehículo no encontrado
-            </h1>
-            <p className="text-muted-foreground mb-8">
-              El vehículo que buscas no existe o ha sido retirado del stock.
-            </p>
-            <Link to="/stock">
-              <Button>Volver al stock</Button>
-            </Link>
+            <h1 className="text-4xl font-bold text-foreground mb-4">Vehículo no encontrado</h1>
+            <p className="text-muted-foreground mb-8">El vehículo que buscas no existe o ha sido retirado del stock.</p>
+            <Link to="/stock"><Button>Volver al stock</Button></Link>
           </div>
         </div>
         <Footer />
@@ -204,24 +148,20 @@ const CarDetail = () => {
     );
   }
 
-  // === IMÁGENES (carrusel) ===
+  // === imágenes carrusel (sin hooks aquí) ===
   const fallbackImg = brandFallback(car.brand);
   const images = toImageArray(car.image_url, fallbackImg);
-  const [idx, setIdx] = useState(0);
   const safeIdx = Math.min(Math.max(idx, 0), images.length - 1);
   const currentImg = images[safeIdx];
-  const goPrev = () => setIdx((i) => (i <= 0 ? images.length - 1 : i - 1));
-  const goNext = () => setIdx((i) => (i >= images.length - 1 ? 0 : i + 1));
+  const goPrev = () => setIdx(i => (i <= 0 ? images.length - 1 : i - 1));
+  const goNext = () => setIdx(i => (i >= images.length - 1 ? 0 : i + 1));
 
-  const original =
-    typeof car.original_price === "number" ? car.original_price : undefined;
+  const original = typeof car.original_price === "number" ? car.original_price : undefined;
   const ahorro = original && car.price ? Math.max(original - car.price, 0) : 0;
   const features = normalizeFeatures(car.features);
 
-  // Si en la tabla no guardaste specs detalladas, renderizamos un set básico
   const specs: Record<string, string> =
-    car.specs ??
-    ({
+    car.specs ?? ({
       Motor: car.fuel ? `${car.fuel}` : "—",
       Potencia: car.power ?? "—",
       "Kilómetros": `${(car.km ?? 0).toLocaleString()} km`,
@@ -234,247 +174,117 @@ const CarDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
       <div className="pt-24 pb-12">
         <div className="container mx-auto px-4">
-          {/* Back Navigation */}
           <div className="mb-8">
-            <Link
-              to="/stock"
-              className="inline-flex items-center text-muted-foreground hover:text-primary transition-colors"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver al stock
+            <Link to="/stock" className="inline-flex items-center text-muted-foreground hover:text-primary transition-colors">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Volver al stock
             </Link>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12">
-            {/* Car Image and Basic Info */}
             <div>
-              {/* === Carrusel === */}
               <div className="relative mb-6">
-                <img
-                  src={currentImg}
-                  alt={`${car.brand} ${car.model}`}
-                  className="w-full h-96 object-cover rounded-2xl"
-                />
-
-                {/* Badges */}
+                <img src={currentImg} alt={`${car.brand} ${car.model}`} className="w-full h-96 object-cover rounded-2xl" />
                 <div className="absolute top-6 left-6 flex gap-3">
-                  <Badge variant="secondary" className="bg-background/90 text-foreground">
-                    {car.year}
-                  </Badge>
-                  <Badge
-                    variant={car.status === "Disponible" ? "default" : "secondary"}
-                    className={
-                      car.status === "Disponible" ? "bg-green-600 hover:bg-green-700" : ""
-                    }
-                  >
+                  <Badge variant="secondary" className="bg-background/90 text-foreground">{car.year}</Badge>
+                  <Badge variant={car.status === "Disponible" ? "default" : "secondary"} className={car.status === "Disponible" ? "bg-green-600 hover:bg-green-700" : ""}>
                     {car.status ?? "Disponible"}
                   </Badge>
                 </div>
                 {ahorro > 0 && (
                   <div className="absolute top-6 right-6">
-                    <Badge className="bg-gradient-primary text-primary-foreground">
-                      Ahorro €{ahorro.toLocaleString()}
-                    </Badge>
+                    <Badge className="bg-gradient-primary text-primary-foreground">Ahorro €{ahorro.toLocaleString()}</Badge>
                   </div>
                 )}
-
-                {/* Controles del carrusel (solo si hay >1 imagen) */}
                 {images.length > 1 && (
                   <>
-                    <button
-                      type="button"
-                      onClick={goPrev}
-                      aria-label="Anterior"
-                      className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 hover:bg-black/60 p-2 text-white"
-                    >
+                    <button type="button" onClick={goPrev} aria-label="Anterior" className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 hover:bg-black/60 p-2 text-white">
                       <ChevronLeft className="h-5 w-5" />
                     </button>
-                    <button
-                      type="button"
-                      onClick={goNext}
-                      aria-label="Siguiente"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 hover:bg-black/60 p-2 text-white"
-                    >
+                    <button type="button" onClick={goNext} aria-label="Siguiente" className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 hover:bg-black/60 p-2 text-white">
                       <ChevronRight className="h-5 w-5" />
                     </button>
-
-                    {/* Dots */}
                     <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
                       {images.map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setIdx(i)}
-                          aria-label={`Ir a imagen ${i + 1}`}
-                          className={`h-2.5 w-2.5 rounded-full ${
-                            i === safeIdx ? "bg-white" : "bg-white/50 hover:bg-white/70"
-                          }`}
-                        />
+                        <button key={i} onClick={() => setIdx(i)} aria-label={`Ir a imagen ${i + 1}`} className={`h-2.5 w-2.5 rounded-full ${i === safeIdx ? "bg-white" : "bg-white/50 hover:bg-white/70"}`} />
                       ))}
                     </div>
                   </>
                 )}
               </div>
 
-              {/* Basic Specs */}
               <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <CarIcon className="mr-3 h-5 w-5 text-primary" />
-                    Especificaciones básicas
-                  </CardTitle>
-                </CardHeader>
+                <CardHeader><CardTitle className="flex items-center"><CarIcon className="mr-3 h-5 w-5 text-primary" />Especificaciones básicas</CardTitle></CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-6">
                     <div className="flex items-center space-x-3">
                       <Calendar className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">Kilómetros</div>
-                        <div className="font-semibold">
-                          {(car.km ?? 0).toLocaleString()} km
-                        </div>
-                      </div>
+                      <div><div className="text-sm text-muted-foreground">Kilómetros</div><div className="font-semibold">{(car.km ?? 0).toLocaleString()} km</div></div>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Fuel className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">Combustible</div>
-                        <div className="font-semibold">{car.fuel ?? "—"}</div>
-                      </div>
+                      <div><div className="text-sm text-muted-foreground">Combustible</div><div className="font-semibold">{car.fuel ?? "—"}</div></div>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Settings className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">Transmisión</div>
-                        <div className="font-semibold">{car.transmission ?? "—"}</div>
-                      </div>
+                      <div><div className="text-sm text-muted-foreground">Transmisión</div><div className="font-semibold">{car.transmission ?? "—"}</div></div>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Gauge className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">Potencia</div>
-                        <div className="font-semibold">{car.power ?? "—"}</div>
-                      </div>
+                      <div><div className="text-sm text-muted-foreground">Potencia</div><div className="font-semibold">{car.power ?? "—"}</div></div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Car Details and Contact Form */}
             <div>
-              {/* Car Header */}
               <div className="mb-8">
-                <h1 className="text-4xl font-bold text-foreground mb-4">
-                  {car.brand} {car.model}
-                </h1>
+                <h1 className="text-4xl font-bold text-foreground mb-4">{car.brand} {car.model}</h1>
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <div className="text-4xl font-bold text-primary">
-                      €{Number(car.price || 0).toLocaleString()}
-                    </div>
-                    {original && (
-                      <div className="text-lg text-muted-foreground line-through">
-                        €{original.toLocaleString()}
-                      </div>
-                    )}
+                    <div className="text-4xl font-bold text-primary">€{Number(car.price || 0).toLocaleString()}</div>
+                    {original && <div className="text-lg text-muted-foreground line-through">€{original.toLocaleString()}</div>}
                   </div>
                   <div className="flex items-center space-x-2">
                     <Star className="h-5 w-5 fill-primary text-primary" />
-                    <span className="text-sm text-muted-foreground">
-                      Vehículo premium
-                    </span>
+                    <span className="text-sm text-muted-foreground">Vehículo premium</span>
                   </div>
                 </div>
               </div>
 
-              {/* Description */}
               {car.description && (
                 <div className="mb-8">
-                  <h3 className="text-xl font-semibold text-foreground mb-4">
-                    Descripción
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {car.description}
-                  </p>
+                  <h3 className="text-xl font-semibold text-foreground mb-4">Descripción</h3>
+                  <p className="text-muted-foreground leading-relaxed">{car.description}</p>
                 </div>
               )}
 
-              {/* Contact Form */}
               <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Mail className="mr-3 h-5 w-5 text-primary" />
-                    Solicitar información
-                  </CardTitle>
-                </CardHeader>
+                <CardHeader><CardTitle className="flex items-center"><Mail className="mr-3 h-5 w-5 text-primary" />Solicitar información</CardTitle></CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name">Nombre</Label>
-                        <Input
-                          id="name"
-                          value={formData.name}
-                          onChange={(e) =>
-                            setFormData({ ...formData, name: e.target.value })
-                          }
-                          required
-                        />
+                        <Input id="name" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="phone">Teléfono</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={(e) =>
-                            setFormData({ ...formData, phone: e.target.value })
-                          }
-                          required
-                        />
+                        <Input id="phone" type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
-                        required
-                      />
+                      <Input id="email" type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="message">Mensaje</Label>
-                      <Textarea
-                        id="message"
-                        value={formData.message}
-                        onChange={(e) =>
-                          setFormData({ ...formData, message: e.target.value })
-                        }
-                        placeholder="Me interesa este vehículo, por favor envíenme más información..."
-                        className="resize-none"
-                        rows={3}
-                      />
+                      <Textarea id="message" value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} placeholder="Me interesa este vehículo, por favor envíenme más información..." className="resize-none" rows={3} />
                     </div>
-                    <Button
-                      type="submit"
-                      disabled={isSending}
-                      className="w-full bg-gradient-primary hover:opacity-90 text-primary-foreground"
-                    >
-                      {isSending ? (
-                        "Enviando..."
-                      ) : (
-                        <>
-                          <Send className="mr-2 h-4 w-4" />
-                          Solicitar información
-                        </>
-                      )}
+                    <Button type="submit" disabled={isSending} className="w-full bg-gradient-primary hover:opacity-90 text-primary-foreground">
+                      {isSending ? "Enviando..." : (<><Send className="mr-2 h-4 w-4" />Solicitar información</>)}
                     </Button>
                   </form>
                 </CardContent>
@@ -482,19 +292,13 @@ const CarDetail = () => {
             </div>
           </div>
 
-          {/* Detailed Specs */}
           <div className="mt-16 grid md:grid-cols-2 gap-8">
             <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle>Especificaciones técnicas</CardTitle>
-              </CardHeader>
+              <CardHeader><CardTitle>Especificaciones técnicas</CardTitle></CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {Object.entries(specs).map(([key, value]) => (
-                    <div
-                      key={key}
-                      className="flex justify-between items-center py-2 border-b border-border/30 last:border-0"
-                    >
+                    <div key={key} className="flex justify-between items-center py-2 border-b border-border/30 last:border-0">
                       <span className="text-muted-foreground">{key}</span>
                       <span className="font-medium text-foreground">{value}</span>
                     </div>
@@ -504,56 +308,39 @@ const CarDetail = () => {
             </Card>
 
             <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle>Equipamiento incluido</CardTitle>
-              </CardHeader>
+              <CardHeader><CardTitle>Equipamiento incluido</CardTitle></CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {features.map((feature, index) => (
+                  {normalizeFeatures(car.features).map((feature, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
                       <span className="text-muted-foreground">{feature}</span>
                     </div>
                   ))}
-                  {features.length === 0 && (
-                    <div className="text-muted-foreground">—</div>
-                  )}
+                  {normalizeFeatures(car.features).length === 0 && <div className="text-muted-foreground">—</div>}
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Warranty and Service */}
           <div className="mt-12">
             <Card className="bg-gradient-steel border-border/30">
               <CardContent className="p-8">
                 <div className="grid md:grid-cols-3 gap-8 text-center">
                   <div>
                     <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                      Garantía extendida
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Todos nuestros vehículos incluyen garantía de 12 meses
-                    </p>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Garantía extendida</h3>
+                    <p className="text-muted-foreground">Todos nuestros vehículos incluyen garantía de 12 meses</p>
                   </div>
                   <div>
                     <CarIcon className="h-12 w-12 text-primary mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                      Inspección completa
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Verificación técnica de 120 puntos antes de la entrega
-                    </p>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Inspección completa</h3>
+                    <p className="text-muted-foreground">Verificación técnica de 120 puntos antes de la entrega</p>
                   </div>
                   <div>
                     <Phone className="h-12 w-12 text-primary mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                      Soporte 24/7
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Atención al cliente disponible en todo momento
-                    </p>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Soporte 24/7</h3>
+                    <p className="text-muted-foreground">Atención al cliente disponible en todo momento</p>
                   </div>
                 </div>
               </CardContent>
@@ -561,7 +348,6 @@ const CarDetail = () => {
           </div>
         </div>
       </div>
-
       <Footer />
     </div>
   );
