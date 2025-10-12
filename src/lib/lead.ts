@@ -20,14 +20,10 @@ export async function submitLead(payload: LeadPayload) {
     }),
   });
   
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({ error: 'Network error' }));
-    throw new Error(errorData.error || 'Lead request failed');
-  }
+  const result = await res.json().catch(() => ({ error: 'Network error' }));
   
-  const result = await res.json();
-  if (!result.ok) {
-    throw new Error(result.error || 'Lead request failed');
+  if (!res.ok || !result.ok) {
+    throw new Error(result.error || res.statusText || 'Lead request failed');
   }
   
   return result;
