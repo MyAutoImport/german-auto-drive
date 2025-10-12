@@ -12,7 +12,7 @@
   </url>
   <!--
     Si quieres añadir coches concretos, genera URLs como:
-    <url><loc>https://myautoimport.es/coche/123</loc><changefreq>weekly</changefreq></url>
+    <url><loc>https://myautoimport.es/coche/bmw_x5</loc><changefreq>weekly</changefreq></url>
     Puedes automatizarlo con una API Route que escupa XML, pero esto te sirve ya mismo.
   -->
 </urlset>

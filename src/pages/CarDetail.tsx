@@ -74,7 +74,7 @@ const CarDetail = () => {
   const carId = isNumericId ? Number(param) : null;
   const carSlug = !isNumericId ? param : null;
 
-  const [cars, setCars] = useState<Car[]>([]);
+  const [car, setCar] = useState<Car | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
@@ -85,44 +85,44 @@ const CarDetail = () => {
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
+    if (!param) return;
+    
     let alive = true;
     (async () => {
       try {
-        setLoading(true); setErr(null);
-        const res = await fetch("/api/cars-list");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        setLoading(true); 
+        setErr(null);
+        setCar(null);
+        
+        const res = await fetch(`/api/car-detail?idOrSlug=${encodeURIComponent(param)}`);
         const data = await res.json();
-        const rawItems: CarRow[] = Array.isArray(data) ? data : data?.cars ?? [];
-        const items: Car[] = rawItems.map(toUiCar);
-        if (alive) setCars(items);
+        
+        if (!res.ok) {
+          if (res.status === 404) {
+            throw new Error("Coche no encontrado");
+          }
+          throw new Error(data.error || `HTTP ${res.status}`);
+        }
+        
+        // Handle redirect response from API
+        if (data.redirect) {
+          navigate(data.redirect, { replace: true });
+          return;
+        }
+        
+        if (alive) {
+          const carData: Car = toUiCar(data);
+          setCar(carData);
+        }
       } catch (e: any) {
         if (alive) setErr(e?.message || "Error al cargar el coche");
       } finally {
         if (alive) setLoading(false);
       }
     })();
+    
     return () => { alive = false; };
-  }, [param]);
-
-  const car = useMemo(() => {
-    if (carSlug) {
-      // Try to find by slug first
-      return cars.find(c => c.slug === carSlug);
-    }
-    if (carId) {
-      // Fall back to ID-based lookup
-      return cars.find(c => c.id === carId);
-    }
-    return undefined;
-  }, [cars, carId, carSlug]);
-
-  // Redirect ID-based URLs to slug-based URLs
-  useEffect(() => {
-    if (carId && car) {
-      const slug = car.slug || toCarSlug(car.brand, car.model);
-      navigate(`/coche/${slug}`, { replace: true });
-    }
-  }, [carId, car, navigate]);
+  }, [param, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
