@@ -300,21 +300,12 @@ const CarDetail = () => {
           </div>
 
           <div className="mt-16 grid md:grid-cols-2 gap-8">
-            {Object.keys(specs).length > 0 && (
-              <Card className="bg-card border-border">
-                <CardHeader><CardTitle>Especificaciones técnicas</CardTitle></CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {Object.entries(specs).map(([key, value]) => (
-                      <div key={key} className="flex justify-between items-center py-2 border-b border-border/30 last:border-0">
-                        <span className="text-muted-foreground">{key}</span>
-                        <span className="font-medium text-foreground">{value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <Card className="bg-card border-border">
+              <CardHeader><CardTitle>Especificaciones técnicas</CardTitle></CardHeader>
+              <CardContent>
+                <TechnicalSpecs car={car} />
+              </CardContent>
+            </Card>
 
             {(features.length > 0 || car.equipment.length > 0) && (
               <Card className="bg-card border-border">
