@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Fuel, Settings, Eye, AlertTriangle } from "lucide-react";
 import { Car, CarRow, toUiCar } from "@/lib/api";
+import { calcSavings, EUR0 } from "@/lib/money";
 
 // Fallbacks por marca (por si falta image_url en BD)
 import bmwFallback from "@/assets/bmw-m3.jpg";
@@ -99,8 +100,8 @@ export default function CarPreview() {
                   car.imageUrl && car.imageUrl.trim().length > 5
                     ? car.imageUrl
                     : brandFallback(car.brand);
-                const original = car.oldPrice;
-                const ahorro = car.savings ?? (original && car.price ? Math.max(original - car.price, 0) : 0);
+                const { amount } = calcSavings(car.oldPrice, car.price);
+                const showSaving = amount > 0;
 
                 return (
                   <Card
@@ -132,10 +133,10 @@ export default function CarPreview() {
                           {car.status ?? "Disponible"}
                         </Badge>
                       </div>
-                      {ahorro > 0 && (
+                      {showSaving && (
                         <div className="absolute top-4 right-4">
                           <Badge className="bg-gradient-primary text-primary-foreground">
-                            Ahorro €{ahorro.toLocaleString()}
+                            Ahorro {EUR0.format(amount)}
                           </Badge>
                         </div>
                       )}
@@ -151,9 +152,9 @@ export default function CarPreview() {
                             <div className="text-3xl font-bold text-primary">
                               €{(car.price ?? 0).toLocaleString()}
                             </div>
-                            {original && original > (car.price ?? 0) && (
+                            {showSaving && (
                               <div className="text-sm text-muted-foreground line-through">
-                                €{original.toLocaleString()}
+                                {EUR0.format(car.oldPrice)}
                               </div>
                             )}
                           </div>

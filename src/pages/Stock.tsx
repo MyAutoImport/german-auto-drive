@@ -33,6 +33,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Car, CarRow, toUiCar } from "@/lib/api";
+import { calcSavings, EUR0 } from "@/lib/money";
 
 // Imágenes fallback por si la BD no trae image_url
 import bmwFallback from "@/assets/bmw-m3.jpg";
@@ -258,9 +259,8 @@ const Stock = () => {
                       ? car.imageUrl
                       : brandFallback(car.brand);
 
-                  const original = car.oldPrice;
-
-                  const ahorro = car.savings ?? (original && car.price ? Math.max(original - car.price, 0) : 0);
+                  const { amount } = calcSavings(car.oldPrice, car.price);
+                  const showSaving = amount > 0;
 
                   const features = car.features;
 
@@ -294,10 +294,10 @@ const Stock = () => {
                             {car.status ?? "Disponible"}
                           </Badge>
                         </div>
-                        {ahorro > 0 && (
+                        {showSaving && (
                           <div className="absolute top-4 right-4">
                             <Badge className="bg-gradient-primary text-primary-foreground">
-                              Ahorro €{ahorro.toLocaleString()}
+                              Ahorro {EUR0.format(amount)}
                             </Badge>
                           </div>
                         )}
@@ -313,9 +313,9 @@ const Stock = () => {
                               <div className="text-3xl font-bold text-primary">
                                 €{(car.price ?? 0).toLocaleString()}
                               </div>
-                              {original && original > (car.price ?? 0) && (
+                              {showSaving && (
                                 <div className="text-sm text-muted-foreground line-through">
-                                  €{original.toLocaleString()}
+                                  {EUR0.format(car.oldPrice)}
                                 </div>
                               )}
                             </div>

@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Car, CarRow, toUiCar } from "@/lib/api";
+import { calcSavings, EUR0 } from "@/lib/money";
 import {
   ArrowLeft, Fuel, Calendar, Settings, Gauge, Shield,
   Car as CarIcon, Phone, Mail, Send, CheckCircle, Star,
@@ -153,8 +154,8 @@ const CarDetail = () => {
   const goPrev = () => setIdx(i => (i <= 0 ? images.length - 1 : i - 1));
   const goNext = () => setIdx(i => (i >= images.length - 1 ? 0 : i + 1));
 
-  const original = car.oldPrice;
-  const ahorro = car.savings ?? (original && car.price ? Math.max(original - car.price, 0) : 0);
+  const { amount } = calcSavings(car.oldPrice, car.price);
+  const showSaving = amount > 0;
   const features = car.features ?? [];
 
   // Use existing specs or create basic ones from individual fields
@@ -193,9 +194,9 @@ const CarDetail = () => {
                     {car.status ?? "Disponible"}
                   </Badge>
                 </div>
-                {ahorro > 0 && (
+                {showSaving && (
                   <div className="absolute top-6 right-6">
-                    <Badge className="bg-gradient-primary text-primary-foreground">Ahorro €{ahorro.toLocaleString()}</Badge>
+                    <Badge className="bg-gradient-primary text-primary-foreground">Ahorro {EUR0.format(amount)}</Badge>
                   </div>
                 )}
                 {images.length > 1 && (
@@ -251,7 +252,7 @@ const CarDetail = () => {
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <div className="text-4xl font-bold text-primary">€{(car.price ?? 0).toLocaleString()}</div>
-                    {original && original > (car.price ?? 0) && <div className="text-lg text-muted-foreground line-through">€{original.toLocaleString()}</div>}
+                    {showSaving && <div className="text-lg text-muted-foreground line-through">{EUR0.format(car.oldPrice)}</div>}
                   </div>
                   {car.badges.length > 0 && (
                     <div className="flex items-center space-x-2">
