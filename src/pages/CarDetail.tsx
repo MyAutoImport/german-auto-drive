@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import TechnicalSpecs from "@/components/TechnicalSpecs";
+import EquipmentPanel from "@/components/EquipmentPanel";
+import SpecsSection from "@/components/SpecsSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +16,7 @@ import { calcSavings, EUR0 } from "@/lib/money";
 import { getStatusVariant, getStatusClassName } from "@/lib/utils";
 import {
   ArrowLeft, Fuel, Calendar, Settings, Gauge, Shield,
-  Car as CarIcon, Phone, Mail, Send, CheckCircle, Star,
+  Car as CarIcon, Phone, Mail, Send, Star,
   AlertTriangle, ChevronLeft, ChevronRight,
 } from "lucide-react";
 
@@ -302,36 +303,10 @@ const CarDetail = () => {
             </div>
           </div>
 
-          <div className="mt-16 grid md:grid-cols-2 gap-8">
-            <Card className="bg-card border-border">
-              <CardHeader><CardTitle>Especificaciones técnicas</CardTitle></CardHeader>
-              <CardContent>
-                <TechnicalSpecs car={car} />
-              </CardContent>
-            </Card>
-
-            {(features.length > 0 || car.equipment.length > 0) && (
-              <Card className="bg-card border-border">
-                <CardHeader><CardTitle>Equipamiento incluido</CardTitle></CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {features.map((feature, index) => (
-                      <div key={index} className="flex items-center space-x-3">
-                        <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
-                        <span className="text-muted-foreground">{feature}</span>
-                      </div>
-                    ))}
-                    {car.equipment.map((item, index) => (
-                      <div key={`eq-${index}`} className="flex items-center space-x-3">
-                        <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
-                        <span className="text-muted-foreground">{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+          <section aria-label="Detalles del vehículo" className="mt-16 flex flex-col gap-6">
+            <EquipmentPanel equipment={car.equipment} features={features} />
+            <SpecsSection car={car} collapsible />
+          </section>
 
           <div className="mt-12">
             <Card className="bg-gradient-steel border-border/30">
