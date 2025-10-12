@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { Car, CarRow, toUiCar } from "@/lib/api";
 import { calcSavings, EUR0 } from "@/lib/money";
+import { getStatusVariant, getStatusClassName } from "@/lib/utils";
 
 // Imágenes fallback por si la BD no trae image_url
 import bmwFallback from "@/assets/bmw-m3.jpg";
@@ -282,14 +283,8 @@ const Stock = () => {
                             </Badge>
                           )}
                           <Badge
-                            variant={
-                              car.status === "Disponible"
-                                ? "default"
-                                : car.status === "Reservado"
-                                ? "outline"
-                                : "secondary"
-                            }
-                            className={car.status === "Disponible" ? "bg-green-600 hover:bg-green-700" : ""}
+                            variant={getStatusVariant(car.status)}
+                            className={getStatusClassName(car.status)}
                           >
                             {car.status ?? "Disponible"}
                           </Badge>

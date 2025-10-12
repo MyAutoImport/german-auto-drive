@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Fuel, Settings, Eye, AlertTriangle } from "lucide-react";
 import { Car, CarRow, toUiCar } from "@/lib/api";
 import { calcSavings, EUR0 } from "@/lib/money";
+import { getStatusVariant, getStatusClassName } from "@/lib/utils";
 
 // Fallbacks por marca (por si falta image_url en BD)
 import bmwFallback from "@/assets/bmw-m3.jpg";
@@ -121,14 +122,8 @@ export default function CarPreview() {
                           </Badge>
                         )}
                         <Badge
-                          variant={
-                            car.status === "Disponible"
-                              ? "default"
-                              : car.status === "Reservado"
-                              ? "outline"
-                              : "secondary"
-                          }
-                          className={car.status === "Disponible" ? "bg-green-600 hover:bg-green-700" : ""}
+                          variant={getStatusVariant(car.status)}
+                          className={getStatusClassName(car.status)}
                         >
                           {car.status ?? "Disponible"}
                         </Badge>

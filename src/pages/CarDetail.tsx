@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Car, CarRow, toUiCar } from "@/lib/api";
 import { calcSavings, EUR0 } from "@/lib/money";
+import { getStatusVariant, getStatusClassName } from "@/lib/utils";
 import {
   ArrowLeft, Fuel, Calendar, Settings, Gauge, Shield,
   Car as CarIcon, Phone, Mail, Send, CheckCircle, Star,
@@ -190,7 +191,7 @@ const CarDetail = () => {
                 <img src={currentImg} alt={`${car.brand} ${car.model}`} className="w-full h-96 object-cover rounded-2xl" />
                 <div className="absolute top-6 left-6 flex gap-3">
                   {car.year && <Badge variant="secondary" className="bg-background/90 text-foreground">{car.year}</Badge>}
-                  <Badge variant={car.status === "Disponible" ? "default" : "secondary"} className={car.status === "Disponible" ? "bg-green-600 hover:bg-green-700" : ""}>
+                  <Badge variant={getStatusVariant(car.status)} className={getStatusClassName(car.status)}>
                     {car.status ?? "Disponible"}
                   </Badge>
                 </div>
