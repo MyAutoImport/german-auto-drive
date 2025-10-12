@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Car, CarRow, toUiCar } from "@/lib/api";
 import { calcSavings, EUR0 } from "@/lib/money";
 import { getStatusVariant, getStatusClassName } from "@/lib/utils";
+import { submitLead } from "@/lib/lead";
 import {
   ArrowLeft, Fuel, Calendar, Settings, Gauge, Shield,
   Car as CarIcon, Phone, Mail, Send, Star,
@@ -103,10 +104,27 @@ const CarDetail = () => {
     e.preventDefault();
     setIsSending(true);
     try {
-      await new Promise(r => setTimeout(r, 800));
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message || `Interesado en ${car?.brand} ${car?.model}`,
+        source: `car/${car?.id}`,
+      };
+      
+      await submitLead(payload);
       toast({ title: "¡Consulta enviada!", description: "Nos pondremos en contacto contigo en las próximas 24 horas." });
       setFormData({ name: "", email: "", phone: "", message: "" });
-    } finally { setIsSending(false); }
+    } catch (err) {
+      console.error('Error submitting lead:', err);
+      toast({ 
+        title: "Error al enviar consulta", 
+        description: "Ha ocurrido un error. Por favor, inténtalo de nuevo.", 
+        variant: "destructive" 
+      });
+    } finally { 
+      setIsSending(false); 
+    }
   };
 
   if (loading) {
@@ -279,20 +297,20 @@ const CarDetail = () => {
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name">Nombre</Label>
-                        <Input id="name" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
+                        <Input id="name" name="name" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="phone">Teléfono</Label>
-                        <Input id="phone" type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
+                        <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} required />
+                      <Input id="email" name="email" type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="message">Mensaje</Label>
-                      <Textarea id="message" value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} placeholder="Me interesa este vehículo, por favor envíenme más información..." className="resize-none" rows={3} />
+                      <Textarea id="message" name="message" value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} placeholder="Me interesa este vehículo, por favor envíenme más información..." className="resize-none" rows={3} />
                     </div>
                     <Button type="submit" disabled={isSending} className="w-full bg-gradient-primary hover:opacity-90 text-primary-foreground">
                       {isSending ? "Enviando..." : (<><Send className="mr-2 h-4 w-4" />Solicitar información</>)}

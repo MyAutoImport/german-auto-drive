@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Send, Car, Phone, Mail, MapPin } from "lucide-react";
+import { submitLead } from "@/lib/lead";
 
 const ContactForm = () => {
   const { toast } = useToast();
@@ -29,17 +30,15 @@ const ContactForm = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        const msg = data?.error || `Fallo ${res.status}`;
-        throw new Error(msg);
-      }
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+        source: `home - ${formData.carType}${formData.budget ? ` (${formData.budget})` : ''}`,
+      };
+      
+      await submitLead(payload);
 
       toast({
         title: "¡Consulta enviada!",
