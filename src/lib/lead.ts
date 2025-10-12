@@ -8,21 +8,27 @@ export type LeadPayload = {
 };
 
 export async function submitLead(payload: LeadPayload) {
-  const res = await fetch('/api/lead-create', {
+  const res = await fetch('/api/leads', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      fullName: payload.name,
+      name: payload.name,
       email: payload.email,
       phone: payload.phone || '',
       message: payload.message || '',
-      vehicleType: payload.source, // Use source as vehicleType for compatibility
+      source: payload.source,
     }),
   });
   
   if (!res.ok) {
-    throw new Error('Lead request failed');
+    const errorData = await res.json().catch(() => ({ error: 'Network error' }));
+    throw new Error(errorData.error || 'Lead request failed');
   }
   
-  return res.json();
+  const result = await res.json();
+  if (!result.ok) {
+    throw new Error(result.error || 'Lead request failed');
+  }
+  
+  return result;
 }

@@ -104,11 +104,12 @@ const CarDetail = () => {
     e.preventDefault();
     setIsSending(true);
     try {
+      const form = new FormData(e.currentTarget as HTMLFormElement);
       const payload = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        message: formData.message || `Interesado en ${car?.brand} ${car?.model}`,
+        name: String(form.get('name') || ''),
+        email: String(form.get('email') || ''),
+        phone: String(form.get('phone') || ''),
+        message: String(form.get('message') || '') || `Interesado en ${car?.brand} ${car?.model}`,
         source: `car/${car?.id}`,
       };
       
@@ -119,7 +120,7 @@ const CarDetail = () => {
       console.error('Error submitting lead:', err);
       toast({ 
         title: "Error al enviar consulta", 
-        description: "Ha ocurrido un error. Por favor, inténtalo de nuevo.", 
+        description: (err as Error)?.message || "Ha ocurrido un error. Por favor, inténtalo de nuevo.", 
         variant: "destructive" 
       });
     } finally { 

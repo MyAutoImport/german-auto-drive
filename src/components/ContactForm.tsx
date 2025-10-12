@@ -30,12 +30,13 @@ const ContactForm = () => {
     setIsLoading(true);
 
     try {
+      const form = new FormData(e.currentTarget as HTMLFormElement);
       const payload = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        message: formData.message,
-        source: `home - ${formData.carType}${formData.budget ? ` (${formData.budget})` : ''}`,
+        name: String(form.get('name') || ''),
+        email: String(form.get('email') || ''),
+        phone: String(form.get('phone') || ''),
+        message: String(form.get('message') || ''),
+        source: 'home',
       };
       
       await submitLead(payload);
@@ -54,6 +55,7 @@ const ContactForm = () => {
         message: "",
       });
     } catch (err: any) {
+      console.error('Contact form error:', err);
       toast({
         variant: "destructive",
         title: "No se pudo enviar",
@@ -93,7 +95,7 @@ const ContactForm = () => {
                     <Label id="nameLabel" htmlFor="name">Nombre completo</Label>
                     <Input
                       id="name"
-                      name="full_name"
+                      name="name"
                       autoComplete="name"
                       value={formData.name}
                       onChange={(e) => handleChange("name", e.target.value)}
