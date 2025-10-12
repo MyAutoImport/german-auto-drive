@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EquipmentPanel from "@/components/EquipmentPanel";
@@ -15,6 +15,7 @@ import { Car, CarRow, toUiCar } from "@/lib/api";
 import { calcSavings, EUR0 } from "@/lib/money";
 import { getStatusVariant, getStatusClassName } from "@/lib/utils";
 import { submitLead } from "@/lib/lead";
+import { toCarSlug } from "@/lib/slug";
 import {
   ArrowLeft, Fuel, Calendar, Settings, Gauge, Shield,
   Car as CarIcon, Phone, Mail, Send, Star,
@@ -64,9 +65,14 @@ function toImageArray(v: unknown, fallback: string): string[] {
 }
 
 const CarDetail = () => {
-  const { id } = useParams();
-  const carId = Number(id);
+  const { param } = useParams();
+  const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Determine if param is numeric (ID) or slug
+  const isNumericId = param && /^\d+$/.test(param);
+  const carId = isNumericId ? Number(param) : null;
+  const carSlug = !isNumericId ? param : null;
 
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,9 +102,27 @@ const CarDetail = () => {
       }
     })();
     return () => { alive = false; };
-  }, [carId]);
+  }, [param]);
 
-  const car = useMemo(() => cars.find(c => c.id === carId), [cars, carId]);
+  const car = useMemo(() => {
+    if (carSlug) {
+      // Try to find by slug first
+      return cars.find(c => c.slug === carSlug);
+    }
+    if (carId) {
+      // Fall back to ID-based lookup
+      return cars.find(c => c.id === carId);
+    }
+    return undefined;
+  }, [cars, carId, carSlug]);
+
+  // Redirect ID-based URLs to slug-based URLs
+  useEffect(() => {
+    if (carId && car) {
+      const slug = car.slug || toCarSlug(car.brand, car.model);
+      navigate(`/coche/${slug}`, { replace: true });
+    }
+  }, [carId, car, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

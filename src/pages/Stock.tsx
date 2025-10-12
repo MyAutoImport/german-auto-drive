@@ -35,6 +35,7 @@ import {
 import { Car, CarRow, toUiCar } from "@/lib/api";
 import { calcSavings, EUR0 } from "@/lib/money";
 import { getStatusVariant, getStatusClassName } from "@/lib/utils";
+import { toCarSlug } from "@/lib/slug";
 
 // Imágenes fallback por si la BD no trae image_url
 import bmwFallback from "@/assets/bmw-m3.jpg";
@@ -357,7 +358,7 @@ const Stock = () => {
 
                         {/* Actions */}
                         <div className="flex gap-3">
-                          <Link to={`/coche/${car.id}`} className="flex-1">
+                          <Link to={`/coche/${car.slug || toCarSlug(car.brand, car.model)}`} className="flex-1">
                             <Button variant="outline" className="w-full">
                               <Eye className="mr-2 h-4 w-4" />
                               Ver detalles

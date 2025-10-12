@@ -2,7 +2,7 @@
 
 // Constant with all necessary Supabase columns
 export const CAR_COLUMNS = 
-  'id, brand, model, year, price, old_price, km, fuel, transmission, power_cv, savings, image_url, description, badges, features, specs, equipment, status';
+  'id, brand, model, year, price, old_price, km, fuel, transmission, power_cv, savings, image_url, description, badges, features, specs, equipment, status, slug';
 
 // Types for database row (snake_case)
 export type CarRow = {
@@ -24,6 +24,7 @@ export type CarRow = {
   specs: Record<string, any> | null;
   equipment: string[] | null; 
   status: string | null;
+  slug: string | null;
 };
 
 // Types for UI (camelCase)
@@ -46,6 +47,7 @@ export type Car = {
   specs: Record<string, any>; 
   equipment: string[]; 
   status?: string;
+  slug?: string;
 };
 
 // Mapper from snake_case to camelCase
@@ -70,6 +72,7 @@ export function toUiCar(r: CarRow): Car {
     specs: r.specs ?? {},
     equipment: r.equipment ?? [],
     status: r.status ?? undefined,
+    slug: r.slug ?? undefined,
   };
 }
 

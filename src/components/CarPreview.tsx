@@ -7,6 +7,7 @@ import { Calendar, Fuel, Settings, Eye, AlertTriangle } from "lucide-react";
 import { Car, CarRow, toUiCar } from "@/lib/api";
 import { calcSavings, EUR0 } from "@/lib/money";
 import { getStatusVariant, getStatusClassName } from "@/lib/utils";
+import { toCarSlug } from "@/lib/slug";
 
 // Fallbacks por marca (por si falta image_url en BD)
 import bmwFallback from "@/assets/bmw-m3.jpg";
@@ -176,7 +177,7 @@ export default function CarPreview() {
                       <div className="flex gap-3">
                         {/* Ver detalles: navega + scroll top */}
                         <Link
-                          to={`/coche/${car.id}`}
+                          to={`/coche/${car.slug || toCarSlug(car.brand, car.model)}`}
                           className="flex-1"
                           onClick={scrollTopAfterNav}
                           aria-label={`Ver detalles de ${car.brand} ${car.model}`}
