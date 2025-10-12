@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { Car, CarRow, toUiCar } from "@/lib/api";
 import {
   ArrowLeft, Fuel, Calendar, Settings, Gauge, Shield,
   Car as CarIcon, Phone, Mail, Send, CheckCircle, Star,
@@ -18,17 +19,6 @@ import {
 import bmwFallback from "@/assets/bmw-m3.jpg";
 import mercFallback from "@/assets/mercedes-c-class.jpg";
 import audiFallback from "@/assets/audi-a4.jpg";
-
-type Car = {
-  id: number; brand: string; model: string; year: number; price: number;
-  original_price?: number | null;
-  image_url?: string[] | string | null; // <-- admite array o string
-  fuel?: string | null; transmission?: string | null; km?: number | null;
-  power?: string | null; features?: string[] | string | null;
-  description?: string | null; status?: string | null;
-  specs?: Record<string, string> | null; color?: string | null;
-  doors?: number | null; seats?: number | null;
-};
 
 function normalizeFeatures(features?: string[] | string | null): string[] {
   if (!features) return [];
@@ -91,7 +81,8 @@ const CarDetail = () => {
         const res = await fetch("/api/cars-list");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        const items: Car[] = Array.isArray(data) ? data : data?.cars ?? [];
+        const rawItems: CarRow[] = Array.isArray(data) ? data : data?.cars ?? [];
+        const items: Car[] = rawItems.map(toUiCar);
         if (alive) setCars(items);
       } catch (e: any) {
         if (alive) setErr(e?.message || "Error al cargar el coche");
@@ -155,26 +146,30 @@ const CarDetail = () => {
 
   // IMÁGENES
   const fallbackImg = brandFallback(car.brand);
-  const images = toImageArray(car.image_url as any, fallbackImg);
+  const images = toImageArray(car.imageUrl as any, fallbackImg);
   const safeIdx = Math.min(Math.max(idx, 0), images.length - 1);
   const currentImg = images[safeIdx];
   const goPrev = () => setIdx(i => (i <= 0 ? images.length - 1 : i - 1));
   const goNext = () => setIdx(i => (i >= images.length - 1 ? 0 : i + 1));
 
-  const original = typeof car.original_price === "number" ? car.original_price : undefined;
-  const ahorro = original && car.price ? Math.max(original - car.price, 0) : 0;
-  const features = normalizeFeatures(car.features);
+  const original = car.oldPrice;
+  const ahorro = car.savings ?? (original && car.price ? Math.max(original - car.price, 0) : 0);
+  const features = car.features ?? [];
 
-  const specs: Record<string, string> =
-    car.specs ?? ({
-      Motor: car.fuel ? `${car.fuel}` : "—",
-      Potencia: car.power ?? "—",
-      "Kilómetros": `${(car.km ?? 0).toLocaleString()} km`,
-      Transmisión: car.transmission ?? "—",
-      Color: car.color ?? "—",
-      Puertas: String(car.doors ?? "—"),
-      Plazas: String(car.seats ?? "—"),
-    } as const);
+  // Use existing specs or create basic ones from individual fields
+  const specs: Record<string, string> = {};
+  if (car.specs && Object.keys(car.specs).length > 0) {
+    // Use existing specs from database
+    Object.entries(car.specs).forEach(([key, value]) => {
+      specs[key] = String(value);
+    });
+  } else {
+    // Create basic specs from individual fields
+    if (car.fuel) specs.Motor = car.fuel;
+    if (car.powerCv) specs["Potencia (CV)"] = `${car.powerCv} CV`;
+    if (car.km) specs.Kilómetros = `${car.km.toLocaleString()} km`;
+    if (car.transmission) specs.Transmisión = car.transmission;
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -192,7 +187,7 @@ const CarDetail = () => {
               <div className="relative mb-6">
                 <img src={currentImg} alt={`${car.brand} ${car.model}`} className="w-full h-96 object-cover rounded-2xl" />
                 <div className="absolute top-6 left-6 flex gap-3">
-                  <Badge variant="secondary" className="bg-background/90 text-foreground">{car.year}</Badge>
+                  {car.year && <Badge variant="secondary" className="bg-background/90 text-foreground">{car.year}</Badge>}
                   <Badge variant={car.status === "Disponible" ? "default" : "secondary"} className={car.status === "Disponible" ? "bg-green-600 hover:bg-green-700" : ""}>
                     {car.status ?? "Disponible"}
                   </Badge>
@@ -230,7 +225,7 @@ const CarDetail = () => {
                   <div className="grid grid-cols-2 gap-6">
                     <div className="flex items-center space-x-3">
                       <Calendar className="h-5 w-5 text-muted-foreground" />
-                      <div><div className="text-sm text-muted-foreground">Kilómetros</div><div className="font-semibold">{(car.km ?? 0).toLocaleString()} km</div></div>
+                      <div><div className="text-sm text-muted-foreground">Kilómetros</div><div className="font-semibold">{car.km ? `${car.km.toLocaleString()} km` : "—"}</div></div>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Fuel className="h-5 w-5 text-muted-foreground" />
@@ -242,7 +237,7 @@ const CarDetail = () => {
                     </div>
                     <div className="flex items-center space-x-3">
                       <Gauge className="h-5 w-5 text-muted-foreground" />
-                      <div><div className="text-sm text-muted-foreground">Potencia</div><div className="font-semibold">{car.power ?? "—"}</div></div>
+                      <div><div className="text-sm text-muted-foreground">Potencia (CV)</div><div className="font-semibold">{car.powerCv ? `${car.powerCv} CV` : "—"}</div></div>
                     </div>
                   </div>
                 </CardContent>
@@ -254,13 +249,15 @@ const CarDetail = () => {
                 <h1 className="text-4xl font-bold text-foreground mb-4">{car.brand} {car.model}</h1>
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <div className="text-4xl font-bold text-primary">€{Number(car.price || 0).toLocaleString()}</div>
-                    {original && <div className="text-lg text-muted-foreground line-through">€{original.toLocaleString()}</div>}
+                    <div className="text-4xl font-bold text-primary">€{(car.price ?? 0).toLocaleString()}</div>
+                    {original && original > (car.price ?? 0) && <div className="text-lg text-muted-foreground line-through">€{original.toLocaleString()}</div>}
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Star className="h-5 w-5 fill-primary text-primary" />
-                    <span className="text-sm text-muted-foreground">Vehículo premium</span>
-                  </div>
+                  {car.badges.length > 0 && (
+                    <div className="flex items-center space-x-2">
+                      <Star className="h-5 w-5 fill-primary text-primary" />
+                      <span className="text-sm text-muted-foreground">{car.badges[0]}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -303,34 +300,43 @@ const CarDetail = () => {
           </div>
 
           <div className="mt-16 grid md:grid-cols-2 gap-8">
-            <Card className="bg-card border-border">
-              <CardHeader><CardTitle>Especificaciones técnicas</CardTitle></CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {Object.entries(specs).map(([key, value]) => (
-                    <div key={key} className="flex justify-between items-center py-2 border-b border-border/30 last:border-0">
-                      <span className="text-muted-foreground">{key}</span>
-                      <span className="font-medium text-foreground">{value}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {Object.keys(specs).length > 0 && (
+              <Card className="bg-card border-border">
+                <CardHeader><CardTitle>Especificaciones técnicas</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {Object.entries(specs).map(([key, value]) => (
+                      <div key={key} className="flex justify-between items-center py-2 border-b border-border/30 last:border-0">
+                        <span className="text-muted-foreground">{key}</span>
+                        <span className="font-medium text-foreground">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-            <Card className="bg-card border-border">
-              <CardHeader><CardTitle>Equipamiento incluido</CardTitle></CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {features.map((feature, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
-                      <span className="text-muted-foreground">{feature}</span>
-                    </div>
-                  ))}
-                  {features.length === 0 && <div className="text-muted-foreground">—</div>}
-                </div>
-              </CardContent>
-            </Card>
+            {(features.length > 0 || car.equipment.length > 0) && (
+              <Card className="bg-card border-border">
+                <CardHeader><CardTitle>Equipamiento incluido</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {features.map((feature, index) => (
+                      <div key={index} className="flex items-center space-x-3">
+                        <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                        <span className="text-muted-foreground">{feature}</span>
+                      </div>
+                    ))}
+                    {car.equipment.map((item, index) => (
+                      <div key={`eq-${index}`} className="flex items-center space-x-3">
+                        <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                        <span className="text-muted-foreground">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           <div className="mt-12">

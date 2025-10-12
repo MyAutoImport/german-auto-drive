@@ -4,27 +4,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Fuel, Settings, Eye, AlertTriangle } from "lucide-react";
+import { Car, CarRow, toUiCar } from "@/lib/api";
 
 // Fallbacks por marca (por si falta image_url en BD)
 import bmwFallback from "@/assets/bmw-m3.jpg";
 import mercFallback from "@/assets/mercedes-c-class.jpg";
 import audiFallback from "@/assets/audi-a4.jpg";
-
-type Car = {
-  id: number;
-  brand: string;
-  model: string;
-  year: number;
-  price: number;
-  original_price?: number | null;
-  image_url?: string | null;
-  km?: number | null;
-  fuel?: string | null;
-  transmission?: string | null;
-  status?: string | null;
-  created_at?: string | null;
-  features?: string[] | string | null;
-};
 
 function brandFallback(brand?: string) {
   if (!brand) return mercFallback;
@@ -48,7 +33,8 @@ export default function CarPreview() {
         const res = await fetch("/api/cars-list");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        const items: Car[] = Array.isArray(data) ? data : data?.cars ?? [];
+        const rawItems: CarRow[] = Array.isArray(data) ? data : data?.cars ?? [];
+        const items: Car[] = rawItems.map(toUiCar);
         if (alive) setCars(items);
       } catch (e: any) {
         if (alive) setErr(e?.message || "Error al cargar los coches");
@@ -77,13 +63,9 @@ export default function CarPreview() {
     }
   };
 
-  // 3 más recientes (por created_at si existe; si no, por id desc)
+  // 3 más recientes (por id desc)
   const top3 = useMemo(() => {
-    const sorted = [...cars].sort((a, b) => {
-      const aKey = a.created_at ? Date.parse(a.created_at) : a.id ?? 0;
-      const bKey = b.created_at ? Date.parse(b.created_at) : b.id ?? 0;
-      return bKey - aKey;
-    });
+    const sorted = [...cars].sort((a, b) => (b.id ?? 0) - (a.id ?? 0));
     return sorted.slice(0, 3);
   }, [cars]);
 
@@ -114,12 +96,11 @@ export default function CarPreview() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {top3.map((car) => {
                 const img =
-                  car.image_url && car.image_url.trim().length > 5
-                    ? car.image_url
+                  car.imageUrl && car.imageUrl.trim().length > 5
+                    ? car.imageUrl
                     : brandFallback(car.brand);
-                const original =
-                  typeof car.original_price === "number" ? car.original_price : undefined;
-                const ahorro = original && car.price ? Math.max(original - car.price, 0) : 0;
+                const original = car.oldPrice;
+                const ahorro = car.savings ?? (original && car.price ? Math.max(original - car.price, 0) : 0);
 
                 return (
                   <Card
@@ -133,9 +114,11 @@ export default function CarPreview() {
                         className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <div className="absolute top-4 left-4 flex gap-2">
-                        <Badge variant="secondary" className="bg-background/90 text-foreground">
-                          {car.year ?? "----"}
-                        </Badge>
+                        {car.year && (
+                          <Badge variant="secondary" className="bg-background/90 text-foreground">
+                            {car.year}
+                          </Badge>
+                        )}
                         <Badge
                           variant={
                             car.status === "Disponible"
@@ -166,9 +149,9 @@ export default function CarPreview() {
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="text-3xl font-bold text-primary">
-                              €{Number(car.price || 0).toLocaleString()}
+                              €{(car.price ?? 0).toLocaleString()}
                             </div>
-                            {original && (
+                            {original && original > (car.price ?? 0) && (
                               <div className="text-sm text-muted-foreground line-through">
                                 €{original.toLocaleString()}
                               </div>
@@ -181,7 +164,7 @@ export default function CarPreview() {
                         <div className="flex items-center space-x-2">
                           <Calendar className="h-4 w-4 text-muted-foreground" />
                           <span className="text-muted-foreground">
-                            {(car.km ?? 0).toLocaleString()} km
+                            {car.km ? `${car.km.toLocaleString()} km` : "—"}
                           </span>
                         </div>
                         <div className="flex items-center space-x-2">

@@ -28,12 +28,15 @@ function toPublicUrl(pathOrUrl) {
   return `${SUPABASE_URL}/storage/v1/object/public/${PUBLIC_BUCKET}/${encodeURI(first)}`;
 }
 
+// CAR_COLUMNS constant with all necessary columns
+const CAR_COLUMNS = 'id, brand, model, year, price, old_price, km, fuel, transmission, power_cv, savings, image_url, description, badges, features, specs, equipment, status';
+
 export default async function handler(req, res) {
   if (req.method !== "GET") return res.status(405).end();
   try {
     const { data, error } = await supabaseAdmin
       .from("cars")
-      .select("*")
+      .select(CAR_COLUMNS)
       .neq("status", "Archivado")
       .order("created_at", { ascending: false });
 

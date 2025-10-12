@@ -32,36 +32,14 @@ import {
   SlidersHorizontal,
   AlertTriangle,
 } from "lucide-react";
+import { Car, CarRow, toUiCar } from "@/lib/api";
 
 // Imágenes fallback por si la BD no trae image_url
 import bmwFallback from "@/assets/bmw-m3.jpg";
 import mercFallback from "@/assets/mercedes-c-class.jpg";
 import audiFallback from "@/assets/audi-a4.jpg";
 
-type Car = {
-  id: number;
-  brand: string;
-  model: string;
-  year: number;
-  price: number;
-  original_price?: number | null;
-  image_url?: string | null;
-  fuel?: string | null;
-  transmission?: string | null;
-  km?: number | null;
-  status?: string | null;
-  // puede llegar como array o string
-  features?: string[] | string | null;
-};
 
-function normalizeFeatures(features?: string[] | string | null): string[] {
-  if (!features) return [];
-  if (Array.isArray(features)) return features.filter(Boolean);
-  return features
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
 
 function brandFallback(brand?: string) {
   if (!brand) return mercFallback;
@@ -94,7 +72,8 @@ const Stock = () => {
         const res = await fetch("/api/cars-list");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        const items: Car[] = Array.isArray(data) ? data : data?.cars ?? [];
+        const rawItems: CarRow[] = Array.isArray(data) ? data : data?.cars ?? [];
+        const items: Car[] = rawItems.map(toUiCar);
         if (alive) setCars(items);
       } catch (e: any) {
         if (alive) setErr(e?.message || "Error al cargar los coches");
@@ -119,7 +98,7 @@ const Stock = () => {
 
       const matchesBrand = !brand || car.brand === brand;
 
-      const price = Number(car.price || 0);
+      const price = car.price ?? 0;
       const matchesPrice =
         !priceBand ||
         (priceBand === "0-30k" && price <= 30000) ||
@@ -275,19 +254,15 @@ const Stock = () => {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredCars.map((car) => {
                   const img =
-                    car.image_url && car.image_url.trim().length > 5
-                      ? car.image_url
+                    car.imageUrl && car.imageUrl.trim().length > 5
+                      ? car.imageUrl
                       : brandFallback(car.brand);
 
-                  const original =
-                    typeof car.original_price === "number"
-                      ? car.original_price
-                      : undefined;
+                  const original = car.oldPrice;
 
-                  const ahorro =
-                    original && car.price ? Math.max(original - car.price, 0) : 0;
+                  const ahorro = car.savings ?? (original && car.price ? Math.max(original - car.price, 0) : 0);
 
-                  const features = normalizeFeatures(car.features);
+                  const features = car.features;
 
                   return (
                     <Card
@@ -301,9 +276,11 @@ const Stock = () => {
                           className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute top-4 left-4 flex gap-2">
-                          <Badge variant="secondary" className="bg-background/90 text-foreground">
-                            {car.year ?? "----"}
-                          </Badge>
+                          {car.year && (
+                            <Badge variant="secondary" className="bg-background/90 text-foreground">
+                              {car.year}
+                            </Badge>
+                          )}
                           <Badge
                             variant={
                               car.status === "Disponible"
@@ -334,9 +311,9 @@ const Stock = () => {
                           <div className="flex items-center justify-between">
                             <div>
                               <div className="text-3xl font-bold text-primary">
-                                €{Number(car.price || 0).toLocaleString()}
+                                €{(car.price ?? 0).toLocaleString()}
                               </div>
-                              {original && (
+                              {original && original > (car.price ?? 0) && (
                                 <div className="text-sm text-muted-foreground line-through">
                                   €{original.toLocaleString()}
                                 </div>
@@ -350,7 +327,7 @@ const Stock = () => {
                           <div className="flex items-center space-x-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
                             <span className="text-muted-foreground">
-                              {(car.km ?? 0).toLocaleString()} km
+                              {car.km ? `${car.km.toLocaleString()} km` : "—"}
                             </span>
                           </div>
                           <div className="flex items-center space-x-2">
@@ -368,18 +345,20 @@ const Stock = () => {
                         </div>
 
                         {/* Features */}
-                        <div className="flex flex-wrap gap-2 mb-6">
-                          {features.slice(0, 3).map((feature) => (
-                            <Badge key={feature} variant="outline" className="text-xs">
-                              {feature}
-                            </Badge>
-                          ))}
-                          {features.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{features.length - 3} más
-                            </Badge>
-                          )}
-                        </div>
+                        {features.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-6">
+                            {features.slice(0, 3).map((feature) => (
+                              <Badge key={feature} variant="outline" className="text-xs">
+                                {feature}
+                              </Badge>
+                            ))}
+                            {features.length > 3 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{features.length - 3} más
+                              </Badge>
+                            )}
+                          </div>
+                        )}
 
                         {/* Actions */}
                         <div className="flex gap-3">

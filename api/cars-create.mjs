@@ -1,6 +1,9 @@
 // api/cars-create.mjs
 import { supabaseAdmin } from './_supabase.mjs';
 
+// CAR_COLUMNS constant with all necessary columns
+const CAR_COLUMNS = 'id, brand, model, year, price, old_price, km, fuel, transmission, power_cv, savings, image_url, description, badges, features, specs, equipment, status';
+
 /**
  * POST /api/cars-create
  * Body JSON mínimo: { brand, model, year }
@@ -38,11 +41,12 @@ export default async function handler(req, res) {
     year: Number(year),
     status, // <- NUEVO
 
-    // opcionales habituales (añade/borra según tu tabla)
+    // opcionales habituales (ajusta según tu tabla)
     price: num(body.price),
     old_price: num(body.old_price),
     km: num(body.km),
-    power: num(body.power),
+    power_cv: num(body.power_cv || body.power), // support both power_cv and power for compatibility
+    savings: num(body.savings),
 
     fuel: body.fuel?.toString(),
     transmission: body.transmission?.toString(),
@@ -53,9 +57,15 @@ export default async function handler(req, res) {
     features: Array.isArray(body.features)
       ? body.features.map(String)
       : undefined,
-    tags: Array.isArray(body.tags)
-      ? body.tags.map(String)
+    badges: Array.isArray(body.badges)
+      ? body.badges.map(String)
       : undefined,
+    equipment: Array.isArray(body.equipment)
+      ? body.equipment.map(String)
+      : undefined,
+    
+    // specs as jsonb
+    specs: body.specs && typeof body.specs === 'object' ? body.specs : undefined,
   };
 
   // eliminamos las claves que quedaron undefined para no romper columnas que no existan
@@ -68,7 +78,7 @@ export default async function handler(req, res) {
     const { data, error } = await supabaseAdmin
       .from('cars')
       .insert([payload])
-      .select()
+      .select(CAR_COLUMNS)
       .single();
 
     if (error) return res.status(500).json({ error: error.message });
