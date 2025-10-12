@@ -31,13 +31,19 @@ export default async function handler(req, res) {
   if (req.method !== "GET") return res.status(405).end();
   
   // Support multiple query parameter names for flexibility
-  const key = req.query.idOrSlug || req.query.slug || req.query.id;
-  if (!key) {
+  let raw = req.query.idOrSlug || req.query.slug || req.query.id || '';
+  // Clean any accidental prefixes and normalize
+  raw = String(raw).trim().toLowerCase()
+    .replace(/^slug-/, '')     // Remove "slug-" prefix
+    .replace(/^car-/, '')      // Remove "car-" prefix  
+    .replace(/^coche-/, '');   // Remove "coche-" prefix
+  
+  if (!raw) {
     return res.status(400).json({ error: "Missing parameter: idOrSlug, slug, or id required" });
   }
 
   try {
-    const param = String(key);
+    const param = raw;
     const isId = /^\d+$/.test(param);
     
     let car = null;
@@ -82,7 +88,11 @@ export default async function handler(req, res) {
     }
     
     if (!car) {
-      return res.status(404).json({ error: "Car not found" });
+      return res.status(404).json({ 
+        error: "Car not found", 
+        searched: param,
+        type: isId ? 'id' : 'slug'
+      });
     }
     
     // Return car with processed image URL
