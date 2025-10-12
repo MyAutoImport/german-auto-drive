@@ -84,15 +84,20 @@ export default function TechnicalSpecs({ car }: { car: Car }) {
   if (rows.length === 0) return null;
 
   return (
-    <div className="space-y-3">
-      {visible.map((r) => (
-        <div key={r.key} className="flex justify-between items-center py-2 border-b border-border/30 last:border-0">
-          <span className="text-muted-foreground">{r.label}</span>
-          <span className="font-medium text-foreground">{r.value}</span>
-        </div>
-      ))}
+    <div>
+      <ul className="divide-y divide-border/30">
+        {visible.map((r, i) => (
+          <li
+            key={r.key}
+            className="spec-row flex items-center justify-between py-3 odd:bg-zinc-900/40 even:bg-transparent"
+          >
+            <span className="spec-label text-muted-foreground">{r.label}</span>
+            <span className="spec-value font-medium text-foreground">{r.value}</span>
+          </li>
+        ))}
+      </ul>
       {hidden > 0 && (
-        <div className="pt-2">
+        <div className="pt-3">
           <Button
             variant="ghost"
             size="sm"
