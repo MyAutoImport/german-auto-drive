@@ -18,7 +18,11 @@ const LABELS: Record<string, string> = {
   neumaticos: "Neumáticos",
   frenos: "Frenos",
   dimensiones_mm: "Dimensiones",
-  batalla_mm: "Batalla"
+  batalla_mm: "Batalla",
+  plazas: "Plazas",
+  puertas: "Puertas",
+  color_ext: "Color exterior",
+  color_int: "Color interior"
 };
 
 type Car = { power_cv?: number | null; specs?: any };
@@ -52,6 +56,10 @@ function buildRows(car: Car) {
   push("neumaticos", s.neumaticos);
   push("frenos", s.frenos);
   push("cilindrada_cc", s.cilindrada_cc, (v) => `${v} cc`);
+  push("plazas", s.plazas);
+  push("puertas", s.puertas);
+  push("color_ext", s.color_ext);
+  push("color_int", s.color_int);
 
   // Fix [object Object] para dimensiones
   if (s.dimensiones_mm) {
