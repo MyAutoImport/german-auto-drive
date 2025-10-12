@@ -1,7 +1,7 @@
 import { supabaseAdmin } from './_supabase.mjs';
 
-// CAR_COLUMNS constant with all necessary columns
-const CAR_COLUMNS = 'id, brand, model, year, price, old_price, km, fuel, transmission, power_cv, savings, image_url, description, badges, features, specs, equipment, status';
+// CAR_COLUMNS constant with all necessary columns including slug
+const CAR_COLUMNS = 'id, slug, brand, model, year, price, old_price, km, fuel, transmission, power_cv, savings, image_url, description, badges, features, specs, equipment, status';
 
 export default async function handler(req, res) {
   if (req.method !== 'PATCH') return res.status(405).end();

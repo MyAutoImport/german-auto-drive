@@ -1,8 +1,18 @@
 // api/cars-create.mjs
 import { supabaseAdmin } from './_supabase.mjs';
 
-// CAR_COLUMNS constant with all necessary columns
-const CAR_COLUMNS = 'id, brand, model, year, price, old_price, km, fuel, transmission, power_cv, savings, image_url, description, badges, features, specs, equipment, status';
+// Simple slug generation function
+function toCarSlug(brand, model) {
+  return (brand + '_' + model)
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quita tildes
+    .replace(/[^a-z0-9_]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '');
+}
+
+// CAR_COLUMNS constant with all necessary columns including slug
+const CAR_COLUMNS = 'id, slug, brand, model, year, price, old_price, km, fuel, transmission, power_cv, savings, image_url, description, badges, features, specs, equipment, status';
 
 /**
  * POST /api/cars-create
@@ -35,9 +45,12 @@ export default async function handler(req, res) {
   const num = (v) => (v === undefined || v === null || v === '' ? undefined : Number(v));
 
   // --- 2) Construimos el payload permitiendo sólo campos conocidos ---
+  const slug = toCarSlug(String(brand), String(model));
+  
   const payload = {
     brand: String(brand),
     model: String(model),
+    slug: slug,
     year: Number(year),
     status, // <- NUEVO
 
