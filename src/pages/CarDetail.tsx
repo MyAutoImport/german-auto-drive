@@ -94,13 +94,47 @@ const CarDetail = () => {
         setErr(null);
         setCar(null);
         
-        const res = await fetch(`/api/car-detail?idOrSlug=${encodeURIComponent(param)}`);
-        const data = await res.json();
+        // Try the dedicated API first (works in production), fall back to cars-list (works in dev)
+        let res = await fetch(`/api/car-detail?idOrSlug=${encodeURIComponent(param)}`);
+        let data;
         
-        if (!res.ok) {
-          if (res.status === 404) {
+        if (!res.ok && res.status === 404) {
+          // Fallback for development: use cars-list and filter
+          res = await fetch("/api/cars-list");
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          
+          const listData = await res.json();
+          const rawItems: CarRow[] = Array.isArray(listData) ? listData : listData?.cars ?? [];
+          const cars: Car[] = rawItems.map(toUiCar);
+          
+          // Find car by slug or ID
+          const isId = /^\d+$/.test(param);
+          let foundCar: Car | undefined;
+          
+          if (isId) {
+            foundCar = cars.find(c => c.id === Number(param));
+            // If found by ID and has slug, redirect to slug URL
+            if (foundCar?.slug) {
+              navigate(`/coche/${foundCar.slug}`, { replace: true });
+              return;
+            }
+          } else {
+            foundCar = cars.find(c => c.slug === param);
+          }
+          
+          if (!foundCar) {
             throw new Error("Coche no encontrado");
           }
+          
+          if (alive) {
+            setCar(foundCar);
+          }
+          return;
+        }
+        
+        data = await res.json();
+        
+        if (!res.ok) {
           throw new Error(data.error || `HTTP ${res.status}`);
         }
         

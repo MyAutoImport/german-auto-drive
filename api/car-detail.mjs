@@ -30,12 +30,15 @@ const CAR_COLUMNS = 'id, slug, brand, model, year, price, old_price, km, fuel, t
 export default async function handler(req, res) {
   if (req.method !== "GET") return res.status(405).end();
   
-  const { idOrSlug } = req.query;
-  if (!idOrSlug) return res.status(400).json({ error: "Missing idOrSlug parameter" });
+  // Support multiple query parameter names for flexibility
+  const key = req.query.idOrSlug || req.query.slug || req.query.id;
+  if (!key) {
+    return res.status(400).json({ error: "Missing parameter: idOrSlug, slug, or id required" });
+  }
 
   try {
-    const key = String(idOrSlug);
-    const isId = /^\d+$/.test(key);
+    const param = String(key);
+    const isId = /^\d+$/.test(param);
     
     let car = null;
     
@@ -44,7 +47,7 @@ export default async function handler(req, res) {
       const { data, error } = await supabaseAdmin
         .from("cars")
         .select(CAR_COLUMNS)
-        .eq("id", Number(key))
+        .eq("id", Number(param))
         .single();
       
       if (error && error.code !== 'PGRST116') { // PGRST116 = not found
@@ -68,7 +71,7 @@ export default async function handler(req, res) {
       const { data, error } = await supabaseAdmin
         .from("cars")
         .select(CAR_COLUMNS)
-        .eq("slug", key)
+        .eq("slug", param)
         .single();
         
       if (error && error.code !== 'PGRST116') {
