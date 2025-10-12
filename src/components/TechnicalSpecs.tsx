@@ -65,6 +65,8 @@ function buildRows(car: Car) {
 }
 
 export default function TechnicalSpecs({ car }: { car: Car }) {
+  if (!car) return null;
+  
   const rows = buildRows(car);
   const [open, setOpen] = useState(false);
   const INITIAL = 10;
