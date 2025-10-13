@@ -10,6 +10,21 @@
     <priority>0.9</priority>
     <changefreq>daily</changefreq>
   </url>
+  <url>
+    <loc>https://myautoimport.es/politica-de-privacidad</loc>
+    <priority>0.3</priority>
+    <changefreq>yearly</changefreq>
+  </url>
+  <url>
+    <loc>https://myautoimport.es/terminos-y-condiciones</loc>
+    <priority>0.3</priority>
+    <changefreq>yearly</changefreq>
+  </url>
+  <url>
+    <loc>https://myautoimport.es/aviso-legal</loc>
+    <priority>0.3</priority>
+    <changefreq>yearly</changefreq>
+  </url>
   <!--
     Si quieres añadir coches concretos, genera URLs como:
     <url><loc>https://myautoimport.es/coche/bmw_x5</loc><changefreq>weekly</changefreq></url>

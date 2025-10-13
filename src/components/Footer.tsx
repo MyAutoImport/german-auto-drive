@@ -157,28 +157,28 @@ const Footer = () => {
             <nav aria-label="Documentación legal">
               <ul className="flex space-x-6 text-sm">
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/politica-de-privacidad"
                     className="text-muted-foreground hover:text-primary transition-colors underline underline-offset-4 decoration-primary/50"
                   >
                     Política de Privacidad
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/terminos-y-condiciones"
                     className="text-muted-foreground hover:text-primary transition-colors underline underline-offset-4 decoration-primary/50"
                   >
                     Términos y Condiciones
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/aviso-legal"
                     className="text-muted-foreground hover:text-primary transition-colors underline underline-offset-4 decoration-primary/50"
                   >
                     Aviso Legal
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </nav>
