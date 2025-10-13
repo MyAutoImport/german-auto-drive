@@ -17,6 +17,7 @@ import { getStatusVariant, getStatusClassName } from "@/lib/utils";
 import { submitLead } from "@/lib/lead";
 import { toCarSlug } from "@/lib/slug";
 import ImageCarousel from "@/components/car/ImageCarousel";
+import { normalizeImages } from "@/lib/normalizeImages";
 import {
   ArrowLeft, Fuel, Calendar, Settings, Gauge, Shield,
   Car as CarIcon, Phone, Mail, Send, Star,
@@ -225,7 +226,10 @@ const CarDetail = () => {
 
   // IMÁGENES
   const fallbackImg = brandFallback(car.brand);
-  const images = toImageArray(car.imageUrl as any, fallbackImg);
+  const images = (car.images as string[] | undefined) ?? normalizeImages(car.imageUrl as any);
+  const finalImages = images && images.length > 0 
+    ? [...new Set(images)] // evita duplicadas exactas (mismo URL)
+    : [fallbackImg];
 
   const { amount } = calcSavings(car.oldPrice, car.price);
   const showSaving = amount > 0;
@@ -260,7 +264,11 @@ const CarDetail = () => {
           <div className="grid lg:grid-cols-2 gap-12">
             <div>
               <div className="relative mb-6">
-                <ImageCarousel images={images} alt={`${car.brand} ${car.model}`} />
+                <ImageCarousel 
+                  images={finalImages} 
+                  alt={`${car.brand} ${car.model}`}
+                  className="relative w-full h-96 rounded-2xl overflow-hidden" 
+                />
                 <div className="absolute top-6 left-6 flex gap-3">
                   {car.year && <Badge variant="secondary" className="bg-background/90 text-foreground">{car.year}</Badge>}
                   <Badge variant={getStatusVariant(car.status)} className={getStatusClassName(car.status)}>

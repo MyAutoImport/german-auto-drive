@@ -41,6 +41,7 @@ export type Car = {
   powerCv?: number; 
   savings?: number; 
   imageUrl?: string | string[]; 
+  images?: string[];
   description?: string;
   badges: string[]; 
   features: string[]; 
@@ -66,6 +67,7 @@ export function toUiCar(r: CarRow): Car {
     // Calculate savings if not available: old_price - price
     savings: r.savings ?? ((r.old_price != null && r.price != null && r.old_price > r.price) ? (Number(r.old_price) - Number(r.price)) : undefined),
     imageUrl: r.image_url ?? undefined,
+    images: (r as any).images ?? undefined,
     description: r.description ?? undefined,
     badges: r.badges ?? [],
     features: r.features ?? [],

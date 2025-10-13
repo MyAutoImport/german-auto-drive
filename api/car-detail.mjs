@@ -25,6 +25,22 @@ function toPublicUrl(pathOrUrl) {
   return `${SUPABASE_URL}/storage/v1/object/public/${PUBLIC_BUCKET}/${encodeURI(first)}`;
 }
 
+function normalizeImages(image_url) {
+  if (!image_url) return [];
+  if (Array.isArray(image_url)) return image_url.filter(Boolean);
+  const s = String(image_url).trim();
+  if (!s) return [];
+  if (s.startsWith("[")) {
+    try {
+      const arr = JSON.parse(s);
+      return Array.isArray(arr) ? arr.filter(Boolean) : [];
+    } catch {
+      // cae abajo y trata como única URL
+    }
+  }
+  return [s];
+}
+
 const CAR_COLUMNS = 'id, slug, brand, model, year, price, old_price, km, fuel, transmission, power_cv, savings, image_url, description, badges, features, specs, equipment, status';
 
 export default async function handler(req, res) {
@@ -95,10 +111,14 @@ export default async function handler(req, res) {
       });
     }
     
-    // Return car with processed image URL
+    // Return car with processed image URL and images array
+    const rawImages = normalizeImages(car.image_url);
+    const processedImages = rawImages.map(toPublicUrl).filter(Boolean);
+    
     const result = {
       ...car,
-      image_url: toPublicUrl(car.image_url)
+      image_url: toPublicUrl(car.image_url),
+      images: processedImages
     };
     
     res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");

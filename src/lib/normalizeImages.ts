@@ -1,16 +1,17 @@
-export function normalizeImages(image_url: string | string[] | null | undefined): string[] {
+export function normalizeImages(
+  image_url: string | string[] | null | undefined
+): string[] {
   if (!image_url) return [];
   if (Array.isArray(image_url)) return image_url.filter(Boolean);
-  
-  // es string; puede venir como JSON '["...","..."]' o una sola URL
-  const trimmed = image_url.trim();
-  if (trimmed.startsWith('[')) {
+  const s = String(image_url).trim();
+  if (!s) return [];
+  if (s.startsWith("[")) {
     try {
-      const arr = JSON.parse(trimmed);
+      const arr = JSON.parse(s);
       return Array.isArray(arr) ? arr.filter(Boolean) : [];
-    } catch { 
-      /* ignore */ 
+    } catch {
+      // cae abajo y trata como única URL
     }
   }
-  return [trimmed];
+  return [s];
 }
