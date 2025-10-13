@@ -36,6 +36,7 @@ import { Car, CarRow, toUiCar } from "@/lib/api";
 import { calcSavings, EUR0 } from "@/lib/money";
 import { getStatusVariant, getStatusClassName } from "@/lib/utils";
 import { toCarSlug } from "@/lib/slug";
+import { normalizeImages } from "@/lib/normalizeImages";
 
 // Imágenes fallback por si la BD no trae image_url
 import bmwFallback from "@/assets/bmw-m3.jpg";
@@ -256,10 +257,8 @@ const Stock = () => {
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredCars.map((car) => {
-                  const img =
-                    car.imageUrl && car.imageUrl.trim().length > 5
-                      ? car.imageUrl
-                      : brandFallback(car.brand);
+                  const images = normalizeImages(car.imageUrl);
+                  const img = images.length > 0 ? images[0] : brandFallback(car.brand);
 
                   const { amount } = calcSavings(car.oldPrice, car.price);
                   const showSaving = amount > 0;

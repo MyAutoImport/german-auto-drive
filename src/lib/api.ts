@@ -40,7 +40,7 @@ export type Car = {
   transmission?: string;
   powerCv?: number; 
   savings?: number; 
-  imageUrl?: string; 
+  imageUrl?: string | string[]; 
   description?: string;
   badges: string[]; 
   features: string[]; 

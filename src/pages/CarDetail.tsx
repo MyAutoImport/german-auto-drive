@@ -16,10 +16,11 @@ import { calcSavings, EUR0 } from "@/lib/money";
 import { getStatusVariant, getStatusClassName } from "@/lib/utils";
 import { submitLead } from "@/lib/lead";
 import { toCarSlug } from "@/lib/slug";
+import ImageCarousel from "@/components/car/ImageCarousel";
 import {
   ArrowLeft, Fuel, Calendar, Settings, Gauge, Shield,
   Car as CarIcon, Phone, Mail, Send, Star,
-  AlertTriangle, ChevronLeft, ChevronRight,
+  AlertTriangle,
 } from "lucide-react";
 
 import bmwFallback from "@/assets/bmw-m3.jpg";
@@ -80,9 +81,6 @@ const CarDetail = () => {
 
   const [isSending, setIsSending] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
-
-  // estado del carrusel (hook debe ir antes de cualquier return)
-  const [idx, setIdx] = useState(0);
 
   useEffect(() => {
     if (!param) return;
@@ -228,10 +226,6 @@ const CarDetail = () => {
   // IMÁGENES
   const fallbackImg = brandFallback(car.brand);
   const images = toImageArray(car.imageUrl as any, fallbackImg);
-  const safeIdx = Math.min(Math.max(idx, 0), images.length - 1);
-  const currentImg = images[safeIdx];
-  const goPrev = () => setIdx(i => (i <= 0 ? images.length - 1 : i - 1));
-  const goNext = () => setIdx(i => (i >= images.length - 1 ? 0 : i + 1));
 
   const { amount } = calcSavings(car.oldPrice, car.price);
   const showSaving = amount > 0;
@@ -266,7 +260,7 @@ const CarDetail = () => {
           <div className="grid lg:grid-cols-2 gap-12">
             <div>
               <div className="relative mb-6">
-                <img src={currentImg} alt={`${car.brand} ${car.model}`} className="w-full h-96 object-cover rounded-2xl" />
+                <ImageCarousel images={images} alt={`${car.brand} ${car.model}`} />
                 <div className="absolute top-6 left-6 flex gap-3">
                   {car.year && <Badge variant="secondary" className="bg-background/90 text-foreground">{car.year}</Badge>}
                   <Badge variant={getStatusVariant(car.status)} className={getStatusClassName(car.status)}>
@@ -277,26 +271,6 @@ const CarDetail = () => {
                   <div className="absolute top-6 right-6">
                     <Badge className="bg-gradient-primary text-primary-foreground">Ahorro {EUR0.format(amount)}</Badge>
                   </div>
-                )}
-                {images.length > 1 && (
-                  <>
-                    <button type="button" onClick={goPrev} aria-label="Anterior" className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 hover:bg-black/60 p-2 text-white">
-                      <ChevronLeft className="h-5 w-5" />
-                    </button>
-                    <button type="button" onClick={goNext} aria-label="Siguiente" className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 hover:bg-black/60 p-2 text-white">
-                      <ChevronRight className="h-5 w-5" />
-                    </button>
-                    <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
-                      {images.map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setIdx(i)}
-                          aria-label={`Ir a imagen ${i + 1}`}
-                          className={`h-2.5 w-2.5 rounded-full ${i === safeIdx ? "bg-white" : "bg-white/50 hover:bg-white/70"}`}
-                        />
-                      ))}
-                    </div>
-                  </>
                 )}
               </div>
 

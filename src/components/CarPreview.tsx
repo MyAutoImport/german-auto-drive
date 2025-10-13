@@ -8,6 +8,7 @@ import { Car, CarRow, toUiCar } from "@/lib/api";
 import { calcSavings, EUR0 } from "@/lib/money";
 import { getStatusVariant, getStatusClassName } from "@/lib/utils";
 import { toCarSlug } from "@/lib/slug";
+import { normalizeImages } from "@/lib/normalizeImages";
 
 // Fallbacks por marca (por si falta image_url en BD)
 import bmwFallback from "@/assets/bmw-m3.jpg";
@@ -98,10 +99,8 @@ export default function CarPreview() {
           <>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {top3.map((car) => {
-                const img =
-                  car.imageUrl && car.imageUrl.trim().length > 5
-                    ? car.imageUrl
-                    : brandFallback(car.brand);
+                const images = normalizeImages(car.imageUrl);
+                const img = images.length > 0 ? images[0] : brandFallback(car.brand);
                 const { amount } = calcSavings(car.oldPrice, car.price);
                 const showSaving = amount > 0;
 
