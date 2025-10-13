@@ -74,3 +74,24 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Header gap compensation for fixed header */
+:root {
+  /* Altura del header fijo: h-16 (64px) + border + backdrop-blur margin */
+  --nav-h: 80px;
+}
+
+/* Aplica un gap superior igual a la altura del header + algo de aire */
+.page-with-header-gap {
+  padding-top: calc(var(--nav-h) + 16px);
+}
+
+/* Para que los anchors/anclas no queden ocultos por el header */
+[id] {
+  scroll-margin-top: calc(var(--nav-h) + 12px);
+}
+
+/* Suaviza el scroll al saltar a secciones */
+html {
+  scroll-behavior: smooth;
+}
