@@ -16,8 +16,8 @@ const AvisoLegal = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto max-w-3xl px-4 py-12 space-y-6 text-gray-200">
-        <h1 className="text-3xl font-semibold text-foreground mb-8">Aviso Legal</h1>
+      <main className="page-with-header-gap container mx-auto max-w-3xl px-4 pb-16 space-y-6 text-gray-200">
+        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-8">Aviso Legal</h1>
         
         <section id="identificacion" className="space-y-4">
           <h2 className="text-2xl font-semibold text-foreground">Identificación del titular</h2>
