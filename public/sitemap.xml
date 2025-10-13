@@ -25,6 +25,11 @@
     <priority>0.3</priority>
     <changefreq>yearly</changefreq>
   </url>
+  <url>
+    <loc>https://myautoimport.es/politica-de-cookies</loc>
+    <priority>0.3</priority>
+    <changefreq>yearly</changefreq>
+  </url>
   <!--
     Si quieres añadir coches concretos, genera URLs como:
     <url><loc>https://myautoimport.es/coche/bmw_x5</loc><changefreq>weekly</changefreq></url>

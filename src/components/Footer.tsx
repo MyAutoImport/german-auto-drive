@@ -155,7 +155,7 @@ const Footer = () => {
               © {new Date().getFullYear()} MyAutoImport. Todos los derechos reservados.
             </div>
             <nav aria-label="Documentación legal">
-              <ul className="flex space-x-6 text-sm">
+              <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
                 <li>
                   <Link
                     to="/politica-de-privacidad"
@@ -178,6 +178,14 @@ const Footer = () => {
                     className="text-muted-foreground hover:text-primary transition-colors underline underline-offset-4 decoration-primary/50"
                   >
                     Aviso Legal
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/politica-de-cookies"
+                    className="text-muted-foreground hover:text-primary transition-colors underline underline-offset-4 decoration-primary/50"
+                  >
+                    Política de Cookies
                   </Link>
                 </li>
               </ul>
