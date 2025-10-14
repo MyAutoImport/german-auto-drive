@@ -356,19 +356,13 @@ const Stock = () => {
                         )}
 
                         {/* Actions */}
-                        <div className="flex gap-3">
-                          <Link to={`/coche/${car.slug || toCarSlug(car.brand, car.model)}`} className="flex-1">
-                            <Button variant="outline" className="w-full">
+                        <div className="flex justify-end">
+                          <Link to={`/coche/${car.slug || toCarSlug(car.brand, car.model)}`} className="flex-1 md:flex-initial">
+                            <Button variant="primaryYellow" className="w-full md:w-auto">
                               <Eye className="mr-2 h-4 w-4" />
                               Ver detalles
                             </Button>
                           </Link>
-                          <Button
-                            className="bg-gradient-primary hover:opacity-90 text-primary-foreground"
-                            disabled={car.status === "Reservado"}
-                          >
-                            {car.status === "Reservado" ? "Reservado" : "Consultar"}
-                          </Button>
                         </div>
                       </CardContent>
                     </Card>
