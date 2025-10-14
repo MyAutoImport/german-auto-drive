@@ -15,8 +15,8 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        primaryYellow: "bg-yellow-500 text-black hover:bg-yellow-400 focus:ring-2 focus:ring-yellow-500/50",
-        darkGhost: "bg-neutral-900 text-white hover:bg-neutral-800 border border-neutral-700 focus:ring-2 focus:ring-neutral-700/50",
+        primaryYellow: "inline-flex items-center justify-center rounded-xl px-4 py-3 transition font-medium bg-yellow-500 text-black hover:bg-yellow-400 focus:ring-2 focus:ring-yellow-500/50",
+        darkGhost: "inline-flex items-center justify-center rounded-xl px-4 py-3 transition font-medium bg-neutral-900 text-white hover:bg-neutral-800 border border-neutral-700 focus:ring-2 focus:ring-neutral-700/50",
       },
       size: {
         default: "h-10 px-4 py-2",

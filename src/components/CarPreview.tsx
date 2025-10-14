@@ -173,18 +173,18 @@ export default function CarPreview() {
                         </div>
                       </div>
 
-                      <div className="flex gap-3">
-                        {/* Ver stock: navega + scroll top (o solo scroll si ya estás en /stock) */}
-                        <Link to="/stock" onClick={handleGoStock} className="flex-1" aria-label="Ver stock">
-                          <Button variant="darkGhost" className="w-full">
-                            Ver stock
+                      <div className="flex items-center gap-3">
+                        {/* Stock: navega + scroll top (o solo scroll si ya estás en /stock) */}
+                        <Link to="/stock" onClick={handleGoStock} aria-label="Ver stock">
+                          <Button variant="darkGhost" className="w-[92px] md:w-[100px]">
+                            Stock
                           </Button>
                         </Link>
 
                         {/* Ver detalles: navega + scroll top */}
                         <Link
                           to={`/coche/${car.slug || toCarSlug(car.brand, car.model)}`}
-                          className="flex-1"
+                          className="flex-1 min-w-[160px]"
                           onClick={scrollTopAfterNav}
                           aria-label={`Ver detalles de ${car.brand} ${car.model}`}
                         >

@@ -28,7 +28,7 @@ const NotFound = () => {
           <Link to="/stock">
             <Button variant="outline">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Ver stock
+              Stock
             </Button>
           </Link>
         </div>

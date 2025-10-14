@@ -356,9 +356,9 @@ const Stock = () => {
                         )}
 
                         {/* Actions */}
-                        <div className="flex justify-end">
-                          <Link to={`/coche/${car.slug || toCarSlug(car.brand, car.model)}`} className="flex-1 md:flex-initial">
-                            <Button variant="primaryYellow" className="w-full md:w-auto">
+                        <div className="mt-4">
+                          <Link to={`/coche/${car.slug || toCarSlug(car.brand, car.model)}`}>
+                            <Button variant="primaryYellow" className="w-full justify-center">
                               <Eye className="mr-2 h-4 w-4" />
                               Ver detalles
                             </Button>
